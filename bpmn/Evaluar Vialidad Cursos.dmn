@@ -1,0 +1,29 @@
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" id="definition_113178bf-e2c7-11f1-87a6-06295b567284" name="Evaluar Vialidad Cursos" namespace="http://www.flowable.org/dmn" exporter="Flowable Open Source Modeler" exporterVersion="6.8.0">
+  <decision id="decisionVialidad" name="Evaluar Vialidad Cursos">
+    <decisionTable id="decisionTable_45a42fff-095f-463a-bdc7-27fb9176513a" hitPolicy="FIRST">
+      <input>
+        <inputExpression id="inputExpression_bb6e6032-21fd-49a7-abdd-10fcd60bbe9a" typeRef="number">
+          <text>otrasInstancias</text>
+        </inputExpression>
+      </input>
+      <output id="outputExpression_4b147e2d-0cd5-4f15-b59e-11beca0966b2" name="viable" typeRef="boolean"></output>
+      <rule>
+        <inputEntry id="inputEntry_bb6e6032-21fd-49a7-abdd-10fcd60bbe9a_1">
+          <text><![CDATA[< 5]]></text>
+        </inputEntry>
+        <outputEntry id="outputEntry_4b147e2d-0cd5-4f15-b59e-11beca0966b2_1">
+          <text><![CDATA[true]]></text>
+        </outputEntry>
+      </rule>
+      <rule>
+        <inputEntry id="inputEntry_bb6e6032-21fd-49a7-abdd-10fcd60bbe9a_2">
+          <text><![CDATA[>= 5]]></text>
+        </inputEntry>
+        <outputEntry id="outputEntry_4b147e2d-0cd5-4f15-b59e-11beca0966b2_2">
+          <text><![CDATA[false]]></text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI></dmndi:DMNDI>
+</definitions>
