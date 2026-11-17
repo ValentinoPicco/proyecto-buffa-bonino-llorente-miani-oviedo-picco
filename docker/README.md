@@ -61,20 +61,25 @@ docker compose down
 
 ---
 
-## Copias de Seguridad y Restauración
+## Copias de Seguridad y Sincronización entre Compañeros
 
-Para compartir el estado de la base de datos entre los integrantes del grupo:
+Los scripts de backup y restore están diseñados para sincronizar el estado entre los integrantes sin conflictos de claves duplicadas (incluyen borrado y recreación limpia predeterminada `--clean --if-exists`).
 
 ### Generar Backup
 ```bash
 ./scripts/backup.sh
 ```
-Los archivos se guardarán en la carpeta `backups/`.
+Los archivos se guardarán automáticamente en la carpeta `backups/`.
 
 ### Restaurar Backup
+Para cargar el último estado del proyecto (usuarios, modelos BPMN y DMN):
 ```bash
-./scripts/restore.sh ../backups/full_backup_YYYYMMDD_HHMMSS.sql
+# Solo pasas el nombre del archivo (el script lo busca automáticamente en backups/):
+./scripts/restore.sh flowable_YYYYMMDD_HHMMSS.dump
 ```
+*(También puedes usar el archivo `.sql`, ej: `./scripts/restore.sh full_backup_YYYYMMDD_HHMMSS.sql`)*.
+
+El script limpia las tablas viejas, inserta los nuevos datos y reinicia Flowable automáticamente para aplicar los cambios en memoria.
 
 ---
 
