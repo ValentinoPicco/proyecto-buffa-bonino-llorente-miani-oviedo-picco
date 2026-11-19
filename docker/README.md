@@ -59,6 +59,20 @@ docker compose down
 > [!WARNING]
 > **NUNCA** utilices `docker compose down -v` salvo que desees borrar intencionalmente todas las bases de datos y modelos guardados.
 
+### Esquema de la base institucional
+
+El esquema de `institucion_db` se encuentra en
+`../db/institucion_schema.sql`. Incluye empresas, solicitudes de cursos,
+propuestas, participantes e informes. El script se aplica automáticamente
+cuando PostgreSQL se inicializa por primera vez.
+
+Para aplicarlo manualmente a una instalación existente:
+
+```bash
+docker exec -i flowable-postgres psql -U flowable -d institucion_db \
+  < ../db/institucion_schema.sql
+```
+
 ---
 
 ## Copias de Seguridad y Sincronización entre Compañeros
