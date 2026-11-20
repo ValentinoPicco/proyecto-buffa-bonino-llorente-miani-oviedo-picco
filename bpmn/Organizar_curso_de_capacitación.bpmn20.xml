@@ -49,7 +49,6 @@
         <flowNodeRef>FinSinCurso</flowNodeRef>
         <flowNodeRef>Rechazar</flowNodeRef>
         <flowNodeRef>Preparar</flowNodeRef>
-        <flowNodeRef>Event_0farfur</flowNodeRef>
         <flowNodeRef>Propuesta</flowNodeRef>
         <flowNodeRef>Gateway_10gftrn</flowNodeRef>
         <flowNodeRef>Event_18edb9q</flowNodeRef>
@@ -62,6 +61,7 @@
         <flowNodeRef>Enviar</flowNodeRef>
         <flowNodeRef>Activity_1xw400l</flowNodeRef>
         <flowNodeRef>sid-9013B867-901F-4311-9F11-8627F07F7920</flowNodeRef>
+        <flowNodeRef>sid-1CA26CC6-7595-4C73-B706-DA5EF719EA50</flowNodeRef>
         <flowNodeRef>main3</flowNodeRef>
         <flowNodeRef>VolverEsperar</flowNodeRef>
         <flowNodeRef>wait3</flowNodeRef>
@@ -75,8 +75,6 @@
         <flowNodeRef>PlazoLimite</flowNodeRef>
         <flowNodeRef>ModificarProp</flowNodeRef>
         <flowNodeRef>Flow_175t1j3</flowNodeRef>
-        <flowNodeRef>Flow_1ymw5qe</flowNodeRef>
-        <flowNodeRef>Preparado</flowNodeRef>
         <flowNodeRef>InformeArchivar</flowNodeRef>
         <flowNodeRef>Flow_0kbnm1d</flowNodeRef>
         <flowNodeRef>Flow_00ve97r</flowNodeRef>
@@ -89,6 +87,9 @@
         <flowNodeRef>sid-EC45D836-496E-456E-885F-F59EA735EAE3</flowNodeRef>
         <flowNodeRef>Rechazado</flowNodeRef>
         <flowNodeRef>SinRespuesta</flowNodeRef>
+        <flowNodeRef>Preparado</flowNodeRef>
+        <flowNodeRef>sid-AE6133B7-8E33-4E73-BF9F-C6E2A10EC5BB</flowNodeRef>
+        <flowNodeRef>sid-DC291356-5AD3-4E85-9CE9-441E132B6B3B</flowNodeRef>
       </lane>
     </laneSet>
     <userTask id="Dictar" name="Desarrollar curso" flowable:assignee="${docenteSeleccionado}" flowable:formFieldValidation="true">
@@ -208,11 +209,23 @@ Recursos" flowable:candidateGroups="adm" flowable:formFieldValidation="true">
         <startEvent id="Event_1g4xmqo" name="Recibir Cancelación" isInterrupting="true">
           <messageEventDefinition flowable:messageExpression="cancelacionMsg"></messageEventDefinition>
         </startEvent>
-        <endEvent id="Event_0snigbc">
-          <errorEventDefinition flowable:errorVariableLocalScope="false" flowable:errorVariableTransient="false"></errorEventDefinition>
-        </endEvent>
+        <scriptTask id="sid-31631671-5772-4D55-BF51-B1FF3F94A6C7" name="Marcar cancelado" scriptFormat="groovy" flowable:autoStoreVariables="false">
+          <script><![CDATA[execution.setVariable("cursoCancelado", true);]]></script>
+        </scriptTask>
+        <userTask id="sid-2DE91E9F-956A-4102-851E-74814609FFBF" name="Dejar una User Task para que pare" flowable:assignee="admin_boss" flowable:formFieldValidation="true">
+          <extensionElements>
+            <modeler:activiti-idm-assignee xmlns:modeler="http://flowable.org/modeler"><![CDATA[true]]></modeler:activiti-idm-assignee>
+            <modeler:assignee-info-email xmlns:modeler="http://flowable.org/modeler"><![CDATA[admin_boss@gmail.com]]></modeler:assignee-info-email>
+            <modeler:assignee-info-firstname xmlns:modeler="http://flowable.org/modeler"><![CDATA[admin]]></modeler:assignee-info-firstname>
+            <modeler:assignee-info-lastname xmlns:modeler="http://flowable.org/modeler"><![CDATA[boss]]></modeler:assignee-info-lastname>
+            <modeler:initiator-can-complete xmlns:modeler="http://flowable.org/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
+          </extensionElements>
+        </userTask>
+        <endEvent id="sid-0895FF62-ECF9-4BE6-9BEF-365FED2966D2"></endEvent>
         <sequenceFlow id="Flow_099pqle" sourceRef="Event_1g4xmqo" targetRef="Event_1rvo4k6"></sequenceFlow>
-        <sequenceFlow id="Flow_0h5si5f" sourceRef="Event_1rvo4k6" targetRef="Event_0snigbc"></sequenceFlow>
+        <sequenceFlow id="sid-843C8797-48A6-4F0E-BB87-E697D303A092" sourceRef="Event_1rvo4k6" targetRef="sid-31631671-5772-4D55-BF51-B1FF3F94A6C7"></sequenceFlow>
+        <sequenceFlow id="sid-C166D4F9-D2A3-4177-AE8E-91FB76416EC8" sourceRef="sid-31631671-5772-4D55-BF51-B1FF3F94A6C7" targetRef="sid-2DE91E9F-956A-4102-851E-74814609FFBF"></sequenceFlow>
+        <sequenceFlow id="sid-E9B167DD-7481-4F7C-8C6A-5FE6D529ADF0" sourceRef="sid-2DE91E9F-956A-4102-851E-74814609FFBF" targetRef="sid-0895FF62-ECF9-4BE6-9BEF-365FED2966D2"></sequenceFlow>
       </subProcess>
       <boundaryEvent id="Event_1gsyqer" attachedToRef="Virtual" cancelActivity="false">
         <compensateEventDefinition></compensateEventDefinition>
@@ -261,9 +274,6 @@ Recursos" flowable:candidateGroups="adm" flowable:formFieldValidation="true">
       <sequenceFlow id="Association_0f6fnvw" sourceRef="Event_1gsyqer" targetRef="Activity_02hrooc"></sequenceFlow>
       <sequenceFlow id="Association_1fh67xn" sourceRef="sid-FFB10310-1EC7-47CC-8F71-627D8DC0DE8F" targetRef="Activity_16zz91p"></sequenceFlow>
     </subProcess>
-    <boundaryEvent id="Event_0farfur" attachedToRef="Preparar">
-      <errorEventDefinition flowable:errorVariableLocalScope="false" flowable:errorVariableTransient="false"></errorEventDefinition>
-    </boundaryEvent>
     <userTask id="Propuesta" name="Registrar y Elaborar propuesta" flowable:assignee="admin_boss" flowable:formFieldValidation="true">
       <extensionElements>
         <modeler:activiti-idm-assignee xmlns:modeler="http://flowable.org/modeler"><![CDATA[true]]></modeler:activiti-idm-assignee>
@@ -333,6 +343,7 @@ def total  = runtime.createProcessInstanceQuery().processDefinitionKey("Process_
 def otras = Math.max(0, (total - 1) as int)
 execution.setVariable("otrasInstancias", otras)]]></script>
     </scriptTask>
+    <exclusiveGateway id="sid-1CA26CC6-7595-4C73-B706-DA5EF719EA50" name="¿Se canceló?"></exclusiveGateway>
     <sequenceFlow id="FechaDictar" sourceRef="Fecha" targetRef="Dictar"></sequenceFlow>
     <sequenceFlow id="Flow_1sdjeh6" sourceRef="Dictar" targetRef="Informe"></sequenceFlow>
     <sequenceFlow id="InformeEnviar" sourceRef="Informe" targetRef="EnviarInforme"></sequenceFlow>
@@ -352,8 +363,6 @@ execution.setVariable("otrasInstancias", otras)]]></script>
     <sequenceFlow id="PlazoLimite" sourceRef="Plazo" targetRef="Limite"></sequenceFlow>
     <sequenceFlow id="ModificarProp" sourceRef="Modificar" targetRef="Revisar"></sequenceFlow>
     <sequenceFlow id="Flow_175t1j3" sourceRef="Activity_12e0et1" targetRef="Event_0w2kitf"></sequenceFlow>
-    <sequenceFlow id="Flow_1ymw5qe" sourceRef="Event_0farfur" targetRef="Activity_12e0et1"></sequenceFlow>
-    <sequenceFlow id="Preparado" sourceRef="Preparar" targetRef="Confirmar"></sequenceFlow>
     <sequenceFlow id="InformeArchivar" sourceRef="EnviarInforme" targetRef="Fin"></sequenceFlow>
     <sequenceFlow id="Flow_0kbnm1d" sourceRef="Activity_1xw400l" targetRef="Gateway_10gftrn"></sequenceFlow>
     <sequenceFlow id="Flow_00ve97r" sourceRef="Activity_0iibzwu" targetRef="Event_18edb9q"></sequenceFlow>
@@ -378,6 +387,13 @@ execution.setVariable("otrasInstancias", otras)]]></script>
         <flowable:executionListener event="take" expression="${execution.setVariable('resultadoProceso', 'cerrado_sin_respuesta')}"></flowable:executionListener>
       </extensionElements>
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${recordatorios >= 2}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Preparado" sourceRef="Preparar" targetRef="sid-1CA26CC6-7595-4C73-B706-DA5EF719EA50"></sequenceFlow>
+    <sequenceFlow id="sid-AE6133B7-8E33-4E73-BF9F-C6E2A10EC5BB" name="Si" sourceRef="sid-1CA26CC6-7595-4C73-B706-DA5EF719EA50" targetRef="Activity_12e0et1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${cursoCancelado == true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-DC291356-5AD3-4E85-9CE9-441E132B6B3B" name="No" sourceRef="sid-1CA26CC6-7595-4C73-B706-DA5EF719EA50" targetRef="Confirmar">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${cursoCancelado == false}]]></conditionExpression>
     </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_Collaboration">
@@ -425,10 +441,10 @@ execution.setVariable("otrasInstancias", otras)]]></script>
         <omgdc:Bounds height="30.0" width="30.0" x="1197.0" y="192.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="Activity_12e0et1" id="BPMNShape_Activity_12e0et1">
-        <omgdc:Bounds height="80.0" width="100.0" x="570.0" y="1690.0"></omgdc:Bounds>
+        <omgdc:Bounds height="80.0" width="100.0" x="554.7333335876465" y="1725.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="Event_0w2kitf" id="BPMNShape_Event_0w2kitf">
-        <omgdc:Bounds height="28.0" width="28.0" x="742.0" y="1712.0"></omgdc:Bounds>
+        <omgdc:Bounds height="28.0" width="28.0" x="742.0" y="1751.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="Archivar" id="BPMNShape_Archivar">
         <omgdc:Bounds height="80.0" width="140.0" x="1350.0" y="450.0"></omgdc:Bounds>
@@ -479,16 +495,22 @@ execution.setVariable("otrasInstancias", otras)]]></script>
         <omgdc:Bounds height="80.0" width="100.0" x="550.0" y="1210.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="Activity_048d5em" id="BPMNShape_Activity_048d5em">
-        <omgdc:Bounds height="120.0" width="300.0" x="1280.0" y="1410.0"></omgdc:Bounds>
+        <omgdc:Bounds height="102.0" width="487.0" x="1114.0" y="1469.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="Event_1rvo4k6" id="BPMNShape_Event_1rvo4k6">
-        <omgdc:Bounds height="30.0" width="30.0" x="1402.0" y="1442.0"></omgdc:Bounds>
+        <omgdc:Bounds height="30.0" width="30.0" x="1236.0" y="1501.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="Event_1g4xmqo" id="BPMNShape_Event_1g4xmqo">
-        <omgdc:Bounds height="30.0" width="30.5" x="1312.0" y="1442.0"></omgdc:Bounds>
+        <omgdc:Bounds height="30.0" width="30.5" x="1146.0" y="1501.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="Event_0snigbc" id="BPMNShape_Event_0snigbc">
-        <omgdc:Bounds height="28.0" width="28.0" x="1492.0" y="1442.0"></omgdc:Bounds>
+      <bpmndi:BPMNShape bpmnElement="sid-31631671-5772-4D55-BF51-B1FF3F94A6C7" id="BPMNShape_sid-31631671-5772-4D55-BF51-B1FF3F94A6C7">
+        <omgdc:Bounds height="80.0" width="100.0" x="1300.0" y="1476.3499755859375"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-2DE91E9F-956A-4102-851E-74814609FFBF" id="BPMNShape_sid-2DE91E9F-956A-4102-851E-74814609FFBF">
+        <omgdc:Bounds height="80.0" width="100.0" x="1440.0" y="1479.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-0895FF62-ECF9-4BE6-9BEF-365FED2966D2" id="BPMNShape_sid-0895FF62-ECF9-4BE6-9BEF-365FED2966D2">
+        <omgdc:Bounds height="28.0" width="28.0" x="1560.0" y="1505.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="Event_1gsyqer" id="BPMNShape_Event_1gsyqer">
         <omgdc:Bounds height="30.0" width="30.0" x="885.0" y="1276.0"></omgdc:Bounds>
@@ -511,9 +533,6 @@ execution.setVariable("otrasInstancias", otras)]]></script>
       <bpmndi:BPMNShape bpmnElement="sid-FFB10310-1EC7-47CC-8F71-627D8DC0DE8F" id="BPMNShape_sid-FFB10310-1EC7-47CC-8F71-627D8DC0DE8F">
         <omgdc:Bounds height="30.0" width="30.0" x="887.9917555757579" y="1115.4360445688183"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="Event_0farfur" id="BPMNShape_Event_0farfur">
-        <omgdc:Bounds height="30.0" width="30.0" x="524.2968993935324" y="1575.7110903860867"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="Propuesta" id="BPMNShape_Propuesta">
         <omgdc:Bounds height="80.0" width="140.0" x="645.0" y="450.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
@@ -527,7 +546,7 @@ execution.setVariable("otrasInstancias", otras)]]></script>
         <omgdc:Bounds height="80.0" width="100.0" x="370.0" y="560.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="Confirmar" id="BPMNShape_Confirmar">
-        <omgdc:Bounds height="80.0" width="100.0" x="827.0" y="1690.0"></omgdc:Bounds>
+        <omgdc:Bounds height="80.0" width="100.0" x="834.5" y="1615.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="Fin" id="BPMNShape_Fin">
         <omgdc:Bounds height="28.0" width="28.0" x="1577.0" y="1712.0"></omgdc:Bounds>
@@ -550,13 +569,20 @@ execution.setVariable("otrasInstancias", otras)]]></script>
       <bpmndi:BPMNShape bpmnElement="sid-9013B867-901F-4311-9F11-8627F07F7920" id="BPMNShape_sid-9013B867-901F-4311-9F11-8627F07F7920">
         <omgdc:Bounds height="80.0" width="100.0" x="210.0" y="310.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-1CA26CC6-7595-4C73-B706-DA5EF719EA50" id="BPMNShape_sid-1CA26CC6-7595-4C73-B706-DA5EF719EA50">
+        <omgdc:Bounds height="40.0" width="40.0" x="584.7333335876465" y="1635.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="OtroRecord" id="BPMNEdge_OtroRecord" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
         <omgdi:waypoint x="1374.5303935860059" y="365.41562500000003"></omgdi:waypoint>
         <omgdi:waypoint x="1539.9999999999993" y="368.93617021276594"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="Preparado" id="BPMNEdge_Preparado" flowable:sourceDockerX="630.0" flowable:sourceDockerY="445.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
-        <omgdi:waypoint x="901.6495726495726" y="1589.9499999999998"></omgdi:waypoint>
-        <omgdi:waypoint x="884.0339316239316" y="1690.0"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-C166D4F9-D2A3-4177-AE8E-91FB76416EC8" id="BPMNEdge_sid-C166D4F9-D2A3-4177-AE8E-91FB76416EC8" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
+        <omgdi:waypoint x="1399.949999999992" y="1517.2954664393835"></omgdi:waypoint>
+        <omgdi:waypoint x="1439.9999999999968" y="1518.0535627092634"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="Preparado" id="BPMNEdge_Preparado" flowable:sourceDockerX="255.23333358764648" flowable:sourceDockerY="813.5368646552977" flowable:targetDockerX="20.5" flowable:targetDockerY="20.5">
+        <omgdi:waypoint x="605.2333335876465" y="1589.9499999999998"></omgdi:waypoint>
+        <omgdi:waypoint x="605.2333335876465" y="1635.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="Rechazado" id="BPMNEdge_Rechazado" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="70.0" flowable:targetDockerY="40.0">
         <omgdi:waypoint x="1226.9484265353917" y="487.2156031584241"></omgdi:waypoint>
@@ -590,8 +616,12 @@ execution.setVariable("otrasInstancias", otras)]]></script>
         <omgdi:waypoint x="976.9999999999918" y="1908.923076923077"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="Flow_099pqle" id="BPMNEdge_Flow_099pqle" flowable:sourceDockerX="15.25" flowable:sourceDockerY="15.0" flowable:targetDockerX="15.0" flowable:targetDockerY="15.0">
-        <omgdi:waypoint x="1342.4499976164639" y="1457.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1402.0" y="1457.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1176.4499976164639" y="1516.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1236.0" y="1516.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-AE6133B7-8E33-4E73-BF9F-C6E2A10EC5BB" id="BPMNEdge_sid-AE6133B7-8E33-4E73-BF9F-C6E2A10EC5BB" flowable:sourceDockerX="20.5" flowable:sourceDockerY="20.5" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
+        <omgdi:waypoint x="605.1461776243436" y="1674.52816223648"></omgdi:waypoint>
+        <omgdi:waypoint x="604.9157536789706" y="1725.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="s1" id="BPMNEdge_s1" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
         <omgdi:waypoint x="404.94594505340444" y="996.6471545531332"></omgdi:waypoint>
@@ -624,6 +654,14 @@ execution.setVariable("otrasInstancias", otras)]]></script>
         <omgdi:waypoint x="900.0" y="1330.0"></omgdi:waypoint>
         <omgdi:waypoint x="1000.0" y="1330.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-DC291356-5AD3-4E85-9CE9-441E132B6B3B" id="BPMNEdge_sid-DC291356-5AD3-4E85-9CE9-441E132B6B3B" flowable:sourceDockerX="20.5" flowable:sourceDockerY="20.5" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
+        <omgdi:waypoint x="624.2139127173243" y="1655.4659213200694"></omgdi:waypoint>
+        <omgdi:waypoint x="834.5" y="1655.0894306517885"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-843C8797-48A6-4F0E-BB87-E697D303A092" id="BPMNEdge_sid-843C8797-48A6-4F0E-BB87-E697D303A092" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
+        <omgdi:waypoint x="1265.9498806883603" y="1516.052849960042"></omgdi:waypoint>
+        <omgdi:waypoint x="1299.999999999997" y="1516.1732202395044"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="or0" id="BPMNEdge_or0" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
         <omgdi:waypoint x="705.6234375" y="1225.625"></omgdi:waypoint>
         <omgdi:waypoint x="710.0" y="1090.0"></omgdi:waypoint>
@@ -653,8 +691,8 @@ execution.setVariable("otrasInstancias", otras)]]></script>
         <omgdi:waypoint x="1178.6234375" y="1225.625"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="Flow_175t1j3" id="BPMNEdge_Flow_175t1j3" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="14.0" flowable:targetDockerY="14.0">
-        <omgdi:waypoint x="669.9499999999999" y="1728.5294117647059"></omgdi:waypoint>
-        <omgdi:waypoint x="742.005932069907" y="1726.4101204169397"></omgdi:waypoint>
+        <omgdi:waypoint x="654.6833335876464" y="1765.0"></omgdi:waypoint>
+        <omgdi:waypoint x="742.0" y="1765.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="oj2" id="BPMNEdge_oj2" flowable:sourceDockerX="70.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
         <omgdi:waypoint x="969.9499999999999" y="1440.0"></omgdi:waypoint>
@@ -668,10 +706,6 @@ execution.setVariable("otrasInstancias", otras)]]></script>
       <bpmndi:BPMNEdge bpmnElement="oj1" id="BPMNEdge_oj1" flowable:sourceDockerX="70.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
         <omgdi:waypoint x="969.9499999999899" y="1248.7410071942445"></omgdi:waypoint>
         <omgdi:waypoint x="1158.3533568904513" y="1245.3524734982332"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="Flow_0h5si5f" id="BPMNEdge_Flow_0h5si5f" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="14.0" flowable:targetDockerY="14.0">
-        <omgdi:waypoint x="1431.9490757255378" y="1456.831471093991"></omgdi:waypoint>
-        <omgdi:waypoint x="1492.0008629904537" y="1456.156731984941"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="VolverEsperar" id="BPMNEdge_VolverEsperar" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
         <omgdi:waypoint x="1599.9875" y="330.0"></omgdi:waypoint>
@@ -697,11 +731,6 @@ execution.setVariable("otrasInstancias", otras)]]></script>
         <omgdi:waypoint x="1420.0" y="210.0"></omgdi:waypoint>
         <omgdi:waypoint x="1420.0" y="189.95"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="Flow_1ymw5qe" id="BPMNEdge_Flow_1ymw5qe" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
-        <omgdi:waypoint x="539.3723627990473" y="1605.66087662902"></omgdi:waypoint>
-        <omgdi:waypoint x="540.0" y="1730.0"></omgdi:waypoint>
-        <omgdi:waypoint x="569.9999999997424" y="1730.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="Flow_0pbsav2" id="BPMNEdge_Flow_0pbsav2" flowable:sourceDockerX="70.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
         <omgdi:waypoint x="689.9499999999828" y="999.5424836601309"></omgdi:waypoint>
         <omgdi:waypoint x="1365.1298701298683" y="995.1295454545456"></omgdi:waypoint>
@@ -720,8 +749,8 @@ execution.setVariable("otrasInstancias", otras)]]></script>
         <omgdi:waypoint x="1577.0051466379855" y="1726.3820514003269"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="Flow_1topamj" id="BPMNEdge_Flow_1topamj" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
-        <omgdi:waypoint x="877.0" y="1769.95"></omgdi:waypoint>
-        <omgdi:waypoint x="877.0" y="1815.0"></omgdi:waypoint>
+        <omgdi:waypoint x="884.5" y="1694.95"></omgdi:waypoint>
+        <omgdi:waypoint x="884.5" y="1815.0"></omgdi:waypoint>
         <omgdi:waypoint x="770.0" y="1815.0"></omgdi:waypoint>
         <omgdi:waypoint x="770.0" y="1870.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
@@ -741,6 +770,10 @@ execution.setVariable("otrasInstancias", otras)]]></script>
         <omgdi:waypoint x="1000.399" y="364.54717113154743"></omgdi:waypoint>
         <omgdi:waypoint x="1005.0" y="590.0"></omgdi:waypoint>
         <omgdi:waypoint x="1197.0015391616755" y="587.2166444698637"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-E9B167DD-7481-4F7C-8C6A-5FE6D529ADF0" id="BPMNEdge_sid-E9B167DD-7481-4F7C-8C6A-5FE6D529ADF0" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="14.0" flowable:targetDockerY="14.0">
+        <omgdi:waypoint x="1539.95" y="1519.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1560.0" y="1519.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="wait3" id="BPMNEdge_wait3" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="15.5" flowable:targetDockerY="15.5">
         <omgdi:waypoint x="1018.2736688851912" y="346.66249999999997"></omgdi:waypoint>

@@ -48,6 +48,7 @@ Este documento define el contrato de integración entre los módulos del proyect
 | `Virtual` | Solicitar Aula Virtual | `candidateGroups="adm"` | Flowable Task UI | Se gestiona desde la UI de Flowable (según sección 4.1.3). |
 | `Equipo` | Contratar equipamiento | `candidateGroups="adm"` | Flowable Task UI | Se gestiona desde la UI de Flowable (según sección 4.1.3). |
 | `Activity_1m08pcl` | Liberar Equipamiento | `candidateGroups="adm"` | Flowable Task UI | Tarea de compensación en caso de cancelación o cierre. |
+| `UserTask_PausaCancel` | Dejar una actividad User para que pare | `assignee="admin_boss"` | Flowable Task UI | Punto de pausa en subproceso de evento para observar finalización de compensaciones (patrón cátedra). |
 | `Activity_1018bdz` | Definir Docente que desarrolla el curso | `assignee="teaching_leader"` | `web/interno/` (Llorente) | Selecciona entre `teaching_leader`, `teaching` o `teaching2` y guarda `docenteSeleccionado`. |
 | `Dictar` | Desarrollar curso | `assignee="${docenteSeleccionado}"` | `web/interno/` (Llorente) | Habilitada tras cumplirse el timer `${fechaCurso}`. Registra la finalización del dictado. |
 | `Informe` | Elaborar informe de resultados | `candidateUsers="teaching_leader"` | `web/interno/` (Llorente) / Flowable UI | Elabora el informe final y genera el **PDF de Informe de Resultados**. |
@@ -94,6 +95,7 @@ Este documento define el contrato de integración entre los módulos del proyect
 | `requierePlataforma` | `boolean` | `web/interno/` (`Activity_12i2hpf`) | Inclusive Gateway `OrInicio` | **Requerido en BPMN:** Activa la rama `Virtual` (`Solicitar Aula Virtual`). |
 | `requiereEquipamiento` | `boolean` | `web/interno/` (`Activity_12i2hpf`) | Inclusive Gateway `OrInicio` | **Requerido en BPMN:** Activa la rama `Equipamiento especial` (`Contratar equipamiento`). |
 | `aulaAsignada` | `string` | ServiceTask `Aula` (Picco/Miani) | `web/interno/`, compensación | Identificador del aula física reservada (ej. `"Aula Magna 2"`). |
+| `cursoCancelado` | `boolean` | Script Task `Habilitar acceso` (`false`) / `Marcar cancelado` (`true`) | Gateway XOR `¿Se canceló?` | Control interno de flujo tras la preparación para bifurcar entre cancelación o confirmación (patrón cátedra). |
 
 ### 4.4 Etapa 4: Desarrollo, Informe y Cierre
 | Nombre Variable | Tipo Flowable | Creada / Modificada por | Consumida por | Descripción / Ejemplo |
