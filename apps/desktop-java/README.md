@@ -51,3 +51,16 @@ Usuarios de prueba (Flowable IDM):
 | :--- | :--- | :--- |
 | `admin2` | `admin2` | `adm` |
 | `admin_boss` | `admin_boss` | `adm` |
+
+## Como se buscan las tareas
+
+La aplicacion usa una sola consulta con `taskCandidateOrAssigned(usuario)`, que incluye:
+
+- las tareas ya asignadas al usuario;
+- las tareas sin asignar donde el usuario es candidato directo;
+- las tareas sin asignar donde alguno de sus grupos es candidato.
+
+Solo se muestran las tareas cuyo `taskDefinitionKey` coincide con `task.definitionKey`
+(por defecto `Material`). La tabla indica si cada tarea esta **Disponible** o
+**Asignada**; el boton **Reclamar** solo se habilita para las disponibles y
+**Completar tarea** solo para las que estan asignadas al usuario de la sesion.
