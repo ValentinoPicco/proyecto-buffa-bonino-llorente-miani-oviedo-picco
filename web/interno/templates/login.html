@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Iniciar Sesión · Portal Interno{% endblock %}
+
+{% block content %}
+<section class="card login-card" aria-labelledby="login-heading">
+  <h1 id="login-heading">Ingreso de Personal (Flowable IDM)</h1>
+  <p>Identifícate con tu usuario y contraseña de Flowable para acceder a las tareas de <strong>Administración</strong> o <strong>Equipo Docente</strong>.</p>
+
+  <form action="{{ url_for('login') }}" method="POST" aria-labelledby="login-heading">
+    <div class="field">
+      <label for="username">ID de Usuario Flowable <span aria-hidden="true">*</span></label>
+      <span id="username-hint" class="hint">Ingresa tu identificador de usuario institucional de Flowable.</span>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        autocomplete="username"
+        autocorrect="off"
+        autocapitalize="none"
+        spellcheck="false"
+        enterkeyhint="next"
+        required
+        aria-describedby="username-hint"
+        data-error="username-error"
+      >
+      <div id="username-error" class="error-msg">
+        <span role="img" aria-label="Error">❌</span> Ingresa tu identificador de usuario de Flowable.
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="password-header">
+        <label for="password">Contraseña <span aria-hidden="true">*</span></label>
+        <button
+          id="toggle-password"
+          type="button"
+          class="btn btn-secondary btn-sm"
+          aria-pressed="false"
+          aria-describedby="toggle-pwd-warning"
+        >
+          Mostrar contraseña
+        </button>
+      </div>
+      <span id="toggle-pwd-warning" class="visually-hidden">
+        Advertencia: esto mostrará tu contraseña en pantalla.
+      </span>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        autocomplete="current-password"
+        enterkeyhint="done"
+        required
+        data-error="password-error"
+      >
+      <div id="password-error" class="error-msg">
+        <span role="img" aria-label="Error">❌</span> Ingresa tu contraseña de Flowable.
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+    </div>
+  </form>
+</section>
+{% endblock %}

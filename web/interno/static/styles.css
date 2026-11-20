@@ -1,0 +1,433 @@
+:root {
+  --bg-page: #f5f7fa;
+  --bg-card: #ffffff;
+  --text-main: #1f2937;
+  --text-muted: #4b5563;
+  --primary: #0b57d0;
+  --primary-hover: #0842a0;
+  --border-color: #767676;
+  --border-subtle: #d1d5db;
+  --error-color: #d93025;
+  --error-bg: #fce8e6;
+  --success-color: #188038;
+  --success-bg: #e6f4ea;
+  --warning-bg: #fef7e0;
+  --warning-text: #8c5400;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+  color: var(--text-main);
+  background-color: var(--bg-page);
+}
+
+/* Hides content visually but keeps it in the accessibility tree */
+.visually-hidden:where(:not(:focus-within, :active)) {
+  position: absolute !important;
+  clip-path: inset(50%) !important;
+  overflow: hidden !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  white-space: nowrap !important;
+}
+
+/* Top Navbar */
+.topbar {
+  background-color: #0f172a;
+  color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.topbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge-role {
+  background-color: #1e3a8a;
+  color: #dbeafe;
+}
+
+/* Main container */
+.container {
+  max-width: 1080px;
+  margin-inline: auto;
+  padding: 1.5rem;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-block-end: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.login-card {
+  max-width: 480px;
+  margin-inline: auto;
+}
+
+/* Flash Alerts */
+.alert-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem 0;
+}
+
+.alert {
+  padding: 0.875rem 1rem;
+  border-radius: 0.375rem;
+  margin-block-end: 0.75rem;
+  border-inline-start: 4px solid var(--primary);
+  background: #e8f0fe;
+}
+
+.alert-error {
+  border-inline-start-color: var(--error-color);
+  background: var(--error-bg);
+  color: #8c1d18;
+}
+
+.alert-success {
+  border-inline-start-color: var(--success-color);
+  background: var(--success-bg);
+  color: #0d652d;
+}
+
+.alert-warning {
+  border-inline-start-color: #f59e0b;
+  background: var(--warning-bg);
+  color: var(--warning-text);
+}
+
+/* Form Architecture & Gestalt Proximity */
+.field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  margin-block-end: 1.5rem;
+}
+
+.field label {
+  font-weight: 600;
+  display: inline-block;
+  padding: 10px 0;
+  margin: -10px 0;
+}
+
+.hint {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  margin-block-end: 0.25rem;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="number"],
+input[type="email"],
+select,
+textarea {
+  font: inherit;
+  font-size: max(1rem, 1em);
+  width: 100%;
+  padding: 0.75rem;
+  min-height: 48px;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  background-color: #ffffff;
+  color: var(--text-main);
+  accent-color: var(--primary);
+}
+
+textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--primary);
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+}
+
+@media (pointer: coarse) {
+  input[type="text"],
+  input[type="password"],
+  input[type="number"],
+  input[type="email"],
+  select,
+  button,
+  .btn {
+    min-height: 52px;
+  }
+}
+
+:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+fieldset {
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.375rem;
+  padding: 1rem 1.25rem;
+  margin-block-end: 1.5rem;
+}
+
+legend {
+  font-weight: 700;
+  padding-inline: 0.5rem;
+}
+
+.choice-row {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 48px;
+  padding-block: 0.25rem;
+}
+
+.choice-row label {
+  font-weight: 500;
+  cursor: pointer;
+  padding: 10px 0;
+  margin: -10px 0;
+}
+
+/* Password row with toggle button */
+.password-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* Validation after interaction (:user-invalid + fallback) */
+.error-msg {
+  display: none;
+  color: var(--error-color);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-block-start: 0.25rem;
+}
+
+:is(:user-invalid, .user-invalid-fallback) {
+  border-color: var(--error-color);
+  background-color: var(--error-bg);
+}
+
+:is(:user-invalid, .user-invalid-fallback) + .error-msg {
+  display: block;
+}
+
+:is(input, select, textarea):user-valid {
+  border-color: var(--success-color);
+}
+
+/* Buttons */
+button,
+.btn {
+  font: inherit;
+  font-size: max(1rem, 1em);
+  font-weight: 600;
+  min-height: 48px;
+  padding: 0.625rem 1.125rem;
+  border-radius: 0.375rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-secondary {
+  background-color: #ffffff;
+  color: var(--text-main);
+  border-color: var(--border-color);
+}
+
+.btn-secondary:hover {
+  background-color: #f3f4f6;
+}
+
+.btn-sm {
+  min-height: 40px;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-block-start: 1rem;
+}
+
+/* Summary Grid for Process Variables */
+.context-box {
+  background-color: #f8fafc;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.375rem;
+  padding: 1rem;
+  margin-block-end: 1.5rem;
+}
+
+.context-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.context-grid dt {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.context-grid dd {
+  margin: 0.15rem 0 0 0;
+  font-weight: 500;
+}
+
+/* Responsive Data Table (Sticky headers + @container stacked cards) */
+.table-wrapper {
+  overflow: auto;
+  max-inline-size: 100%;
+  max-block-size: min(550px, 80vh);
+  container-type: inline-size;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.375rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #ffffff;
+  --label-1: "Tarea";
+  --label-2: "Curso / Empresa";
+  --label-3: "Instancia";
+  --label-4: "Asignación";
+  --label-5: "Acción";
+}
+
+caption {
+  text-align: start;
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+  background: #f1f5f9;
+  border-block-end: 1px solid var(--border-subtle);
+}
+
+th, td {
+  padding: 0.75rem 1rem;
+  text-align: start;
+  border-block-end: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+
+thead {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1;
+  background: #e2e8f0;
+}
+
+tbody th {
+  position: sticky;
+  inset-inline-start: 0;
+  background: #ffffff;
+  font-weight: 600;
+}
+
+@container (width < 600px) {
+  table, thead, tbody, tr, th, td {
+    display: block;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tr {
+    margin-block-end: 1rem;
+    border: 1px solid var(--border-subtle);
+  }
+
+  tbody th {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 2;
+    background: #f1f5f9;
+  }
+
+  td:nth-child(2)::before {
+    content: var(--label-2) ": ";
+    font-weight: 600;
+  }
+
+  td:nth-child(3)::before {
+    content: var(--label-3) ": ";
+    font-weight: 600;
+  }
+
+  td:nth-child(4)::before {
+    content: var(--label-4) ": ";
+    font-weight: 600;
+  }
+
+  td:nth-child(5)::before {
+    content: var(--label-5) ": ";
+    font-weight: 600;
+  }
+}
