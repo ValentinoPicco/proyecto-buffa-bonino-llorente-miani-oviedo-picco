@@ -22,7 +22,7 @@
   <message id="Msg_informe" name="Informe de resultados"></message>
   <process id="Process_Curso" name="Institución de capacitación" isExecutable="true">
     <extensionElements>
-      <flowable:executionListener event="end" expression="${execution.setVariable('resultadoProceso', 'finalizado')}"></flowable:executionListener>
+      <flowable:executionListener event="end" expression="${execution.setVariable('finRegistrado', true)}"></flowable:executionListener>
     </extensionElements>
     <laneSet id="laneSet_Process_Curso">
       <lane id="Lane_0sq5phl" name="Docentes">
@@ -162,6 +162,7 @@ execution.setVariable("recordatorios", r);]]></script>
       <receiveTask id="Nomina" name="Recibir nómina"></receiveTask>
       <userTask id="Lista" name="Confeccionar lista definitiva" flowable:candidateGroups="adm" flowable:formFieldValidation="true">
         <extensionElements>
+          <flowable:taskListener event="create" expression="${task.setAssignee(task.getEngineServices().getTaskService().createTaskQuery().taskAssignee('admin2').active().count() &lt;= task.getEngineServices().getTaskService().createTaskQuery().taskAssignee('admin_boss').active().count() ? 'admin2' : 'admin_boss')}"></flowable:taskListener>
           <modeler:group-info-name-adm xmlns:modeler="http://flowable.org/modeler"><![CDATA[Administración]]></modeler:group-info-name-adm>
           <modeler:activiti-idm-candidate-group xmlns:modeler="http://flowable.org/modeler"><![CDATA[true]]></modeler:activiti-idm-candidate-group>
           <modeler:initiator-can-complete xmlns:modeler="http://flowable.org/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
@@ -294,6 +295,7 @@ execution.setVariable("estadoCurso", "confirmado");]]></script>
     </userTask>
     <userTask id="EnviarInforme" name="Enviar informe a empresa y Archivar expediente." flowable:assignee="admin_boss" flowable:formFieldValidation="true">
       <extensionElements>
+        <flowable:executionListener event="end" expression="${execution.setVariable('resultadoProceso', 'finalizado')}"></flowable:executionListener>
         <modeler:activiti-idm-assignee xmlns:modeler="http://flowable.org/modeler"><![CDATA[true]]></modeler:activiti-idm-assignee>
         <modeler:assignee-info-email xmlns:modeler="http://flowable.org/modeler"><![CDATA[admin_boss@gmail.com]]></modeler:assignee-info-email>
         <modeler:assignee-info-firstname xmlns:modeler="http://flowable.org/modeler"><![CDATA[admin]]></modeler:assignee-info-firstname>
