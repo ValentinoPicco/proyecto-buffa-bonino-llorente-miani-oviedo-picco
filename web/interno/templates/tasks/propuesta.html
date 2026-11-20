@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Registrar y Elaborar Propuesta · Portal Interno{% endblock %}
+
+{% block content %}
+<article class="card" aria-labelledby="task-heading">
+  <h1 id="task-heading" style="margin-block-start: 0;">{{ task.name }} (Versión 1)</h1>
+  <p>Responsabilidad: <strong>Jefe Administrativo (<code>admin_boss</code>)</strong>. Al enviar este formulario se generará el documento PDF de la propuesta inicial y se reiniciará el contador de recordatorios (<code>recordatorios = 0</code>).</p>
+
+  <section class="context-box" aria-label="Datos de la solicitud recibida">
+    <dl class="context-grid">
+      <div>
+        <dt>Instancia Flowable</dt>
+        <dd><code>{{ task.processInstanceId }}</code></dd>
+      </div>
+      <div>
+        <dt>Cantidad Estimada de Participantes</dt>
+        <dd>{{ vars.get('cantidadParticipantes', '-') }}</dd>
+      </div>
+      <div>
+        <dt>Fechas Preferidas por la Empresa</dt>
+        <dd>{{ vars.get('fechasPreferidas', '-') }}</dd>
+      </div>
+      <div>
+        <dt>Descripción de la Necesidad</dt>
+        <dd>{{ vars.get('cursoDescripcion', '-') }}</dd>
+      </div>
+    </dl>
+  </section>
+
+  <form action="{{ url_for('task_detail', task_id=task.id) }}" method="POST" aria-labelledby="task-heading">
+    <fieldset>
+      <legend>Datos de Identificación de la Solicitud</legend>
+
+      <div class="field">
+        <label for="empresaNombre">Empresa Solicitante <span aria-hidden="true">*</span></label>
+        <input
+          type="text"
+          id="empresaNombre"
+          name="empresaNombre"
+          value="{{ vars.get('empresaNombre', '') }}"
+          required
+          data-error="empresaNombre-error"
+        >
+        <div id="empresaNombre-error" class="error-msg">
+          <span role="img" aria-label="Error">❌</span> Indica la razón social de la empresa solicitante.
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="empresaContacto">Persona y Correo de Contacto <span aria-hidden="true">*</span></label>
+        <input
+          type="text"
+          id="empresaContacto"
+          name="empresaContacto"
+          value="{{ vars.get('empresaContacto', '') }}"
+          required
+          data-error="empresaContacto-error"
+        >
+        <div id="empresaContacto-error" class="error-msg">
+          <span role="img" aria-label="Error">❌</span> Indica los datos de contacto de la empresa.
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="cursoNombre">Título del Curso <span aria-hidden="true">*</span></label>
+        <input
+          type="text"
+          id="cursoNombre"
+          name="cursoNombre"
+          value="{{ vars.get('cursoNombre', '') }}"
+          required
+          data-error="cursoNombre-error"
+        >
+        <div id="cursoNombre-error" class="error-msg">
+          <span role="img" aria-label="Error">❌</span> Ingresa el título del curso.
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Elaboración de la Propuesta y Presupuesto</legend>
+
+      <div class="field">
+        <label for="programaPropuesto">Programa de Contenidos y Módulos <span aria-hidden="true">*</span></label>
+        <span id="programa-hint" class="hint">Detalla los módulos, carga horaria y objetivos que se incluirán en el PDF.</span>
+        <textarea
+          id="programaPropuesto"
+          name="programaPropuesto"
+          required
+          aria-describedby="programa-hint"
+          data-error="programa-error"
+        >{{ vars.get('programaPropuesto', '') }}</textarea>
+        <div id="programa-error" class="error-msg">
+          <span role="img" aria-label="Error">❌</span> Escribe el programa propuesto para la capacitación.
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="presupuesto">Presupuesto Total (ARS $) <span aria-hidden="true">*</span></label>
+        <span id="presupuesto-hint" class="hint">Ingresa el monto numérico sin símbolos de moneda (ej. 450000).</span>
+        <input
+          type="number"
+          step="0.01"
+          min="1"
+          id="presupuesto"
+          name="presupuesto"
+          value="{{ vars.get('presupuesto', '') }}"
+          required
+          aria-describedby="presupuesto-hint"
+          data-error="presupuesto-error"
+        >
+        <div id="presupuesto-error" class="error-msg">
+          <span role="img" aria-label="Error">❌</span> Ingresa un monto de presupuesto mayor a cero.
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="fechasPosibles">Fechas Posibles Propuestas <span aria-hidden="true">*</span></label>
+        <span id="fechas-hint" class="hint">Formato sugerido: 2026-11-25, 2026-12-02 (o rango de fechas disponibles).</span>
+        <input
+          type="text"
+          id="fechasPosibles"
+          name="fechasPosibles"
+          value="{{ vars.get('fechasPosibles', '') }}"
+          required
+          aria-describedby="fechas-hint"
+          data-error="fechas-error"
+        >
+        <div id="fechas-error" class="error-msg">
+          <span role="img" aria-label="Error">❌</span> Indica las fechas posibles para dictar el curso.
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        Generar PDF de Propuesta y Enviar a Empresa
+      </button>
+      <a href="{{ url_for('bandeja') }}" class="btn btn-secondary">Volver a la bandeja</a>
+    </div>
+  </form>
+</article>
+{% endblock %}

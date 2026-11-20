@@ -2,7 +2,7 @@ from typing import Any
 import requests
 from requests.auth import HTTPBasicAuth
 
-from config import FLOWABLE_IDM_API, FLOWABLE_PROCESS_API
+from config import FLOWABLE_PROCESS_API
 
 ROLE_LABELS_BY_USER = {
     "admin_boss": "Jefe Administrativo",
@@ -20,7 +20,7 @@ DOCENTES_DISPONIBLES = [
 
 
 def _variables_list_to_dict(vars_list: list[dict[str, Any]]) -> dict[str, Any]:
-    #Convierte el array de variables de Flowable REST en un diccionario clave -> valor.
+    """Convierte el array de variables de Flowable REST en un diccionario clave -> valor."""
     result = {}
     for item in vars_list or []:
         name = item.get("name")
@@ -31,7 +31,8 @@ def _variables_list_to_dict(vars_list: list[dict[str, Any]]) -> dict[str, Any]:
 
 def authenticate_user(username: str, password: str) -> dict[str, Any] | None:
     """
-    Autentica un miembro del personal contra Flowable IDM usando Basic Auth
+    Autentica un miembro del personal contra Flowable Identity REST API
+    (/flowable-ui/process-api/identity/users/{username}) usando Basic Auth
     y obtiene sus datos de perfil y grupos asignados ('adm' o 'teach').
     """
     username = (username or "").strip()
@@ -42,7 +43,7 @@ def authenticate_user(username: str, password: str) -> dict[str, Any] | None:
 
     try:
         resp = requests.get(
-            f"{FLOWABLE_IDM_API}/idm/users/{username}",
+            f"{FLOWABLE_PROCESS_API}/identity/users/{username}",
             auth=auth,
             timeout=5,
         )
@@ -51,7 +52,7 @@ def authenticate_user(username: str, password: str) -> dict[str, Any] | None:
 
         user_data = resp.json()
         groups_resp = requests.get(
-            f"{FLOWABLE_IDM_API}/idm/groups",
+            f"{FLOWABLE_PROCESS_API}/identity/groups",
             params={"member": username},
             auth=auth,
             timeout=5,
@@ -75,7 +76,7 @@ def authenticate_user(username: str, password: str) -> dict[str, Any] | None:
 
 
 def _normalize_flowable_task(raw_task: dict[str, Any]) -> dict[str, Any]:
-    #Normaliza la estructura de una tarea devuelta por Flowable REST.
+    """Normaliza la estructura de una tarea devuelta por Flowable REST."""
     variables = raw_task.get("variables")
     if isinstance(variables, list):
         variables = _variables_list_to_dict(variables)
@@ -93,9 +94,14 @@ def _normalize_flowable_task(raw_task: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def get_tasks_for_user(username: str, password: str, groups: list[str]) -> dict[str, Any]:
-    #Devuelve las tareas asignadas al usuario y las tareas candidatas disponibles para su grupo.
-
+def get_tasks_for_user(
+    username: str,
+    password: str,
+    groups: list[str],
+) -> dict[str, Any]:
+    """
+    Devuelve las tareas asignadas al usuario y las tareas candidatas disponibles para su grupo.
+    """
     auth = HTTPBasicAuth(username, password)
 
     try:
@@ -117,7 +123,7 @@ def get_tasks_for_user(username: str, password: str, groups: list[str]) -> dict[
             for t in (assigned_resp.json().get("data", []) if assigned_resp.ok else [])
         ]
 
-        # 2. Tareas candidatas para grupos (adm o teach)
+        # 2. Tareas candidatas para sus grupos ('adm' o 'teach')
         claimable_map: dict[str, dict[str, Any]] = {}
         for grp in groups:
             cand_resp = requests.get(
@@ -134,7 +140,7 @@ def get_tasks_for_user(username: str, password: str, groups: list[str]) -> dict[
                 for t in cand_resp.json().get("data", []):
                     claimable_map[t["id"]] = _normalize_flowable_task(t)
 
-        # 3.Tareas donde el usuario es candidateUser directo (ej. Informe -> teaching_leader)
+        # 3. Tareas donde el usuario es candidateUser directo
         cand_user_resp = requests.get(
             f"{FLOWABLE_PROCESS_API}/runtime/tasks",
             params={
@@ -161,8 +167,12 @@ def get_tasks_for_user(username: str, password: str, groups: list[str]) -> dict[
         }
 
 
-def get_task_by_id(username: str, password: str, task_id: str,) -> dict[str, Any] | None:
-    #Obtiene el detalle de una tarea específica junto con las variables de su instancia de proceso.
+def get_task_by_id(
+    username: str,
+    password: str,
+    task_id: str,
+) -> dict[str, Any] | None:
+    """Obtiene el detalle de una tarea específica junto con las variables de su instancia de proceso."""
     auth = HTTPBasicAuth(username, password)
 
     try:
@@ -192,8 +202,12 @@ def get_task_by_id(username: str, password: str, task_id: str,) -> dict[str, Any
         return None
 
 
-def claim_task(username: str, password: str, task_id: str) -> tuple[bool, str]:
-    #Reclama una tarea candidata asignándola al usuario actual.
+def claim_task(
+    username: str,
+    password: str,
+    task_id: str,
+) -> tuple[bool, str]:
+    """Reclama una tarea candidata asignándola al usuario actual."""
     auth = HTTPBasicAuth(username, password)
 
     try:
@@ -210,8 +224,13 @@ def claim_task(username: str, password: str, task_id: str) -> tuple[bool, str]:
         return False, f"Error de conexión con Flowable: {exc}"
 
 
-def complete_task(username: str, password: str, task_id: str, variables: list[dict[str, Any]],) -> tuple[bool, str]:
-    #Completa una tarea en Flowable enviando el listado de variables actualizadas.
+def complete_task(
+    username: str,
+    password: str,
+    task_id: str,
+    variables: list[dict[str, Any]],
+) -> tuple[bool, str]:
+    """Completa una tarea en Flowable enviando el listado de variables actualizadas."""
     auth = HTTPBasicAuth(username, password)
 
     try:

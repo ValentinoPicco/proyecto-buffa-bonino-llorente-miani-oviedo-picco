@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Elaborar Informe de Resultados · Portal Interno{% endblock %}
+
+{% block content %}
+<article class="card" aria-labelledby="task-heading">
+  <h1 id="task-heading" style="margin-block-start: 0;">{{ task.name }}</h1>
+  <p>Responsabilidad: <strong>Jefe del Equipo Docente (<code>teaching_leader</code>)</strong>. Elabora el informe final de resultados y genera el documento PDF correspondiente para su envío a la empresa.</p>
+
+  <section class="context-box" aria-label="Datos registrados durante el dictado">
+    <dl class="context-grid">
+      <div>
+        <dt>Empresa / Curso</dt>
+        <dd><strong>{{ vars.get('empresaNombre', '-') }}</strong> · {{ vars.get('cursoNombre', '-') }}</dd>
+      </div>
+      <div>
+        <dt>Docente que Dictó el Curso</dt>
+        <dd><code>{{ vars.get('docenteSeleccionado', '-') }}</code></dd>
+      </div>
+      <div>
+        <dt>Fecha de Finalización</dt>
+        <dd>{{ vars.get('fechaFinDictado', '-') }}</dd>
+      </div>
+      <div style="grid-column: 1 / -1;">
+        <dt>Observaciones del Docente (<code>observacionesDictado</code>)</dt>
+        <dd>{{ vars.get('observacionesDictado', '-') }}</dd>
+      </div>
+    </dl>
+  </section>
+
+  <form action="{{ url_for('task_detail', task_id=task.id) }}" method="POST" aria-labelledby="task-heading">
+    <div class="field">
+      <label for="porcentajeAsistencia">Porcentaje Promedio de Asistencia (0 a 100%) <span aria-hidden="true">*</span></label>
+      <input
+        type="number"
+        min="0"
+        max="100"
+        id="porcentajeAsistencia"
+        name="porcentajeAsistencia"
+        value="{{ vars.get('porcentajeAsistencia', 95) }}"
+        required
+        data-error="asistencia-error"
+      >
+      <div id="asistencia-error" class="error-msg">
+        <span role="img" aria-label="Error">❌</span> Ingresa un porcentaje entre 0 y 100.
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="informeResultados">Informe Ejecutivo de Resultados y Evaluaciones <span aria-hidden="true">*</span></label>
+      <span id="informe-hint" class="hint">Detalla el grado de cumplimiento de los objetivos, desempeño de los participantes y conclusiones. Se generará el PDF oficial.</span>
+      <textarea
+        id="informeResultados"
+        name="informeResultados"
+        required
+        aria-describedby="informe-hint"
+        data-error="informe-error"
+      >{{ vars.get('informeResultados', '') }}</textarea>
+      <div id="informe-error" class="error-msg">
+        <span role="img" aria-label="Error">❌</span> Redacta el informe de resultados antes de completar la tarea.
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Generar PDF de Informe y Completar Tarea</button>
+      <a href="{{ url_for('bandeja') }}" class="btn btn-secondary">Volver a la bandeja</a>
+    </div>
+  </form>
+</article>
+{% endblock %}

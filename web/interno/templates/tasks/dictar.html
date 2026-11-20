@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Desarrollar Curso · Portal Interno{% endblock %}
+
+{% block content %}
+<article class="card" aria-labelledby="task-heading">
+  <h1 id="task-heading" style="margin-block-start: 0;">{{ task.name }}</h1>
+  <p>Responsabilidad: <strong>Docente Asignado (<code>{{ task.assignee }}</code>)</strong>. Una vez alcanzada la fecha programada (<code>{{ vars.get('fechaCurso', '-') }}</code>), registra la finalización del dictado del curso.</p>
+
+  <section class="context-box" aria-label="Datos del curso en dictado">
+    <dl class="context-grid">
+      <div>
+        <dt>Empresa / Curso</dt>
+        <dd><strong>{{ vars.get('empresaNombre', '-') }}</strong> · {{ vars.get('cursoNombre', '-') }}</dd>
+      </div>
+      <div>
+        <dt>Docente Designado</dt>
+        <dd><code>{{ vars.get('docenteSeleccionado', task.assignee) }}</code></dd>
+      </div>
+      <div>
+        <dt>Fecha de Inicio Programada</dt>
+        <dd>{{ vars.get('fechaCurso', '-') }}</dd>
+      </div>
+      <div>
+        <dt>Aula / Espacio</dt>
+        <dd>{{ vars.get('aulaAsignada', '-') }}</dd>
+      </div>
+      <div style="grid-column: 1 / -1;">
+        <dt>Lista Definitiva de Participantes</dt>
+        <dd><pre style="margin: 0.25rem 0 0 0; white-space: pre-wrap; font-family: inherit;">{{ vars.get('listaDefinitiva', '-') }}</pre></dd>
+      </div>
+    </dl>
+  </section>
+
+  <form action="{{ url_for('task_detail', task_id=task.id) }}" method="POST" aria-labelledby="task-heading">
+    <div class="field">
+      <label for="fechaFinDictado">Fecha y Hora de Finalización del Dictado <span aria-hidden="true">*</span></label>
+      <span id="fecha-fin-hint" class="hint">Indica la fecha real en que concluyó el dictado de las clases.</span>
+      <input
+        type="text"
+        id="fechaFinDictado"
+        name="fechaFinDictado"
+        value="{{ vars.get('fechaFinDictado', '2026-11-18 18:00') }}"
+        required
+        aria-describedby="fecha-fin-hint"
+        data-error="fecha-fin-error"
+      >
+      <div id="fecha-fin-error" class="error-msg">
+        <span role="img" aria-label="Error">❌</span> Ingresa la fecha de finalización del dictado.
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="observacionesDictado">Resumen y Observaciones del Dictado <span aria-hidden="true">*</span></label>
+      <span id="obs-dictado-hint" class="hint">Registra asistencia general, cumplimiento del temario e insumos para el informe final del Jefe Docente.</span>
+      <textarea
+        id="observacionesDictado"
+        name="observacionesDictado"
+        required
+        aria-describedby="obs-dictado-hint"
+        data-error="obs-dictado-error"
+      >{{ vars.get('observacionesDictado', '') }}</textarea>
+      <div id="obs-dictado-error" class="error-msg">
+        <span role="img" aria-label="Error">❌</span> Registra las observaciones sobre el desarrollo del curso.
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Registrar Finalización del Dictado</button>
+      <a href="{{ url_for('bandeja') }}" class="btn btn-secondary">Volver a la bandeja</a>
+    </div>
+  </form>
+</article>
+{% endblock %}

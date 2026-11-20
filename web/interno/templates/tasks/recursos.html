@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Evaluar Recursos · Portal Interno{% endblock %}
+
+{% block content %}
+<article class="card" aria-labelledby="task-heading">
+  <h1 id="task-heading" style="margin-block-start: 0;">{{ task.name }}</h1>
+  <p>Responsabilidad: <strong>Grupo Administración (<code>adm</code>)</strong>. Selecciona los recursos necesarios para el curso. Al completar la tarea, la compuerta inclusiva (<code>OrInicio</code>) activará las ramas correspondientes en Flowable.</p>
+
+  <section class="context-box" aria-label="Datos del curso para evaluación de recursos">
+    <dl class="context-grid">
+      <div>
+        <dt>Empresa / Curso</dt>
+        <dd><strong>{{ vars.get('empresaNombre', '-') }}</strong> · {{ vars.get('cursoNombre', '-') }}</dd>
+      </div>
+      <div>
+        <dt>Cantidad de Participantes</dt>
+        <dd>{{ vars.get('cantidadParticipantes', '-') }}</dd>
+      </div>
+      <div>
+        <dt>Fecha Programada</dt>
+        <dd>{{ vars.get('fechaCurso', '-') }}</dd>
+      </div>
+      <div>
+        <dt>Descripción del Curso</dt>
+        <dd>{{ vars.get('cursoDescripcion', '-') }}</dd>
+      </div>
+    </dl>
+  </section>
+
+  <form
+    id="form-evaluar-recursos"
+    action="{{ url_for('task_detail', task_id=task.id) }}"
+    method="POST"
+    aria-labelledby="task-heading"
+  >
+    <fieldset aria-describedby="recursos-hint">
+      <legend>Selección de Recursos Necesarios (Mínimo 1 requerido) <span aria-hidden="true">*</span></legend>
+      <span id="recursos-hint" class="hint">
+        Debes seleccionar al menos una alternativa. El motor ejecutará automáticamente la reserva de aula física o habilitará las tareas de Aula Virtual y Equipamiento Especial.
+      </span>
+
+      <div class="choice-row">
+        <input
+          type="checkbox"
+          id="requiereAula"
+          name="requiereAula"
+          value="true"
+          data-resource-check="true"
+          {% if vars.get('requiereAula') %}checked{% endif %}
+        >
+        <label for="requiereAula">
+          <strong>Reservar Aula Física</strong> (Variable BPMN: <code>requiereAula = true</code> · Servicio automático)
+        </label>
+      </div>
+
+      <div class="choice-row">
+        <input
+          type="checkbox"
+          id="requierePlataforma"
+          name="requierePlataforma"
+          value="true"
+          data-resource-check="true"
+          {% if vars.get('requierePlataforma') %}checked{% endif %}
+        >
+        <label for="requierePlataforma">
+          <strong>Solicitar Aula Virtual</strong> (Variable BPMN: <code>requierePlataforma = true</code> · Habilita tarea en Flowable UI)
+        </label>
+      </div>
+
+      <div class="choice-row">
+        <input
+          type="checkbox"
+          id="requiereEquipamiento"
+          name="requiereEquipamiento"
+          value="true"
+          data-resource-check="true"
+          {% if vars.get('requiereEquipamiento') %}checked{% endif %}
+        >
+        <label for="requiereEquipamiento">
+          <strong>Contratar Equipamiento Especial</strong> (Variable BPMN: <code>requiereEquipamiento = true</code> · Habilita tarea en Flowable UI)
+        </label>
+      </div>
+
+      <div id="recursos-group-error" class="error-msg" role="alert">
+        <span role="img" aria-label="Error">❌</span> Selecciona al menos una opción de recursos (Aula física, Aula virtual o Equipamiento especial).
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Confirmar Recursos y Activar Ramas</button>
+      <a href="{{ url_for('bandeja') }}" class="btn btn-secondary">Volver a la bandeja</a>
+    </div>
+  </form>
+</article>
+{% endblock %}

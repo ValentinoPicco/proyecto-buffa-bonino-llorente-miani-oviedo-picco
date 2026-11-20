@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Revisar Propuesta · Portal Interno{% endblock %}
+
+{% block content %}
+<article class="card" aria-labelledby="task-heading">
+  {% set next_version = (vars.get('versionPropuesta', 1) | int) + 1 %}
+  <h1 id="task-heading" style="margin-block-start: 0;">{{ task.name }} (Nueva Versión {{ next_version }})</h1>
+  <p>Responsabilidad: <strong>Jefe Administrativo (<code>admin_boss</code>)</strong>. Ajusta la propuesta según las modificaciones solicitadas por la empresa. Se generará la <strong>Versión {{ next_version }} del PDF</strong> y se reiniciará <code>recordatorios = 0</code>.</p>
+
+  <section class="context-box" aria-label="Observaciones de la empresa">
+    <dl class="context-grid">
+      <div>
+        <dt>Empresa / Curso</dt>
+        <dd><strong>{{ vars.get('empresaNombre', '-') }}</strong> · {{ vars.get('cursoNombre', '-') }}</dd>
+      </div>
+      <div>
+        <dt>Versión Anterior</dt>
+        <dd>Versión {{ vars.get('versionPropuesta', 1) }} ({{ vars.get('propuestaPdfNombre', 'Sin PDF previo') }})</dd>
+      </div>
+      <div style="grid-column: 1 / -1;">
+        <dt>Modificaciones Solicitadas por la Empresa (<code>observacionesEmpresa</code>)</dt>
+        <dd style="color: #8c1d18; font-weight: 600;">
+          {{ vars.get('observacionesEmpresa', 'La empresa solicitó ajustes en presupuesto o fechas.') }}
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <form action="{{ url_for('task_detail', task_id=task.id) }}" method="POST" aria-labelledby="task-heading">
+    <input type="hidden" name="empresaNombre" value="{{ vars.get('empresaNombre', '') }}">
+    <input type="hidden" name="empresaContacto" value="{{ vars.get('empresaContacto', '') }}">
+    <input type="hidden" name="cursoNombre" value="{{ vars.get('cursoNombre', '') }}">
+
+    <div class="field">
+      <label for="programaPropuesto">Programa Revisado <span aria-hidden="true">*</span></label>
+      <textarea
+        id="programaPropuesto"
+        name="programaPropuesto"
+        required
+        data-error="programa-error"
+      >{{ vars.get('programaPropuesto', '') }}</textarea>
+      <div id="programa-error" class="error-msg">
+        <span role="img" aria-label="Error">❌</span> El programa revisado no puede quedar vacío.
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="presupuesto">Nuevo Presupuesto Acordado (ARS $) <span aria-hidden="true">*</span></label>
+      <input
+        type="number"
+        step="0.01"
+        min="1"
+        id="presupuesto"
+        name="presupuesto"
+        value="{{ vars.get('presupuesto', '') }}"
+        required
+        data-error="presupuesto-error"
+      >
+      <div id="presupuesto-error" class="error-msg">
+        <span role="img" aria-label="Error">❌</span> Ingresa un presupuesto válido mayor a cero.
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="fechasPosibles">Nuevas Fechas Posibles <span aria-hidden="true">*</span></label>
+      <input
+        type="text"
+        id="fechasPosibles"
+        name="fechasPosibles"
+        value="{{ vars.get('fechasPosibles', '') }}"
+        required
+        data-error="fechas-error"
+      >
+      <div id="fechas-error" class="error-msg">
+        <span role="img" aria-label="Error">❌</span> Ingresa las nuevas fechas propuestas.
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="notasRevision">Resumen de Cambios Aplicados en esta Versión</label>
+      <span id="notas-hint" class="hint">Se incluirá en el PDF para dejar constancia de los ajustes frente al pedido de la empresa.</span>
+      <textarea
+        id="notasRevision"
+        name="notasRevision"
+        aria-describedby="notas-hint"
+      >{{ vars.get('observacionesEmpresa', '') }}</textarea>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        Generar PDF Versión {{ next_version }} y Reenviar Propuesta
+      </button>
+      <a href="{{ url_for('bandeja') }}" class="btn btn-secondary">Volver a la bandeja</a>
+    </div>
+  </form>
+</article>
+{% endblock %}

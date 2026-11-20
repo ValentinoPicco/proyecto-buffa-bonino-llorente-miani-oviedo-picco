@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Confeccionar Lista Definitiva · Portal Interno{% endblock %}
+
+{% block content %}
+<article class="card" aria-labelledby="task-heading">
+  <h1 id="task-heading" style="margin-block-start: 0;">{{ task.name }}</h1>
+  <p>Responsabilidad: <strong>Grupo Administración (<code>adm</code>)</strong>. Confecciona la lista definitiva a partir de la nómina enviada por la empresa (según el enunciado 1.2, no se requiere verificar individualmente los datos de cada participante).</p>
+
+  <section class="context-box" aria-label="Nómina recibida de la empresa">
+    <dl class="context-grid">
+      <div>
+        <dt>Empresa / Curso</dt>
+        <dd><strong>{{ vars.get('empresaNombre', '-') }}</strong> · {{ vars.get('cursoNombre', '-') }}</dd>
+      </div>
+      <div>
+        <dt>Fecha Acordada (<code>fechaCurso</code>)</dt>
+        <dd>{{ vars.get('fechaCurso', '-') }}</dd>
+      </div>
+      <div style="grid-column: 1 / -1;">
+        <dt>Nómina Enviada por la Empresa (<code>nominaParticipantes</code>)</dt>
+        <dd><pre style="margin: 0.25rem 0 0 0; white-space: pre-wrap; font-family: inherit;">{{ vars.get('nominaParticipantes', 'Sin nómina cargada aún.') }}</pre></dd>
+      </div>
+    </dl>
+  </section>
+
+  <form action="{{ url_for('task_detail', task_id=task.id) }}" method="POST" aria-labelledby="task-heading">
+    <div class="field">
+      <label for="listaDefinitiva">Lista Definitiva de Participantes Inscriptos <span aria-hidden="true">*</span></label>
+      <span id="lista-hint" class="hint">Puedes confirmar la nómina recibida o darle formato final para el registro del curso.</span>
+      <textarea
+        id="listaDefinitiva"
+        name="listaDefinitiva"
+        required
+        aria-describedby="lista-hint"
+        data-error="lista-error"
+      >{{ vars.get('listaDefinitiva') or vars.get('nominaParticipantes', '') }}</textarea>
+      <div id="lista-error" class="error-msg">
+        <span role="img" aria-label="Error">❌</span> La lista definitiva de participantes es obligatoria.
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="observacionesLista">Observaciones de Inscripción (Opcional)</label>
+      <input
+        type="text"
+        id="observacionesLista"
+        name="observacionesLista"
+        value="{{ vars.get('observacionesLista', '') }}"
+      >
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Guardar Lista Definitiva y Completar Tarea</button>
+      <a href="{{ url_for('bandeja') }}" class="btn btn-secondary">Volver a la bandeja</a>
+    </div>
+  </form>
+</article>
+{% endblock %}

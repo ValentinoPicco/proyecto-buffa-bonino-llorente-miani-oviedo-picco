@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Archivar Solicitud · Portal Interno{% endblock %}
+
+{% block content %}
+<article class="card" aria-labelledby="task-heading">
+  <h1 id="task-heading" style="margin-block-start: 0;">{{ task.name }}</h1>
+  <p>Responsabilidad: <strong>Jefe Administrativo (<code>admin_boss</code>)</strong>. Se archiva la solicitud debido a rechazo de la propuesta o vencimiento del plazo tras dos recordatorios sin respuesta.</p>
+
+  <section class="context-box" aria-label="Contexto de la solicitud a archivar">
+    <dl class="context-grid">
+      <div>
+        <dt>Empresa Solicitante</dt>
+        <dd>{{ vars.get('empresaNombre', '-') }}</dd>
+      </div>
+      <div>
+        <dt>Curso Solicitado</dt>
+        <dd>{{ vars.get('cursoNombre', '-') }}</dd>
+      </div>
+      <div>
+        <dt>Recordatorios Enviados</dt>
+        <dd>{{ vars.get('recordatorios', 0) }}</dd>
+      </div>
+      <div>
+        <dt>Causal Registrada</dt>
+        <dd>{{ vars.get('motivoRechazoOSinRespuesta', 'Rechazo de la empresa o falta de respuesta.') }}</dd>
+      </div>
+    </dl>
+  </section>
+
+  <form action="{{ url_for('task_detail', task_id=task.id) }}" method="POST" aria-labelledby="task-heading">
+    <div class="field">
+      <label for="motivoArchivo">Observaciones de Archivo y Cierre <span aria-hidden="true">*</span></label>
+      <span id="archivo-hint" class="hint">Deja constancia administrativa del motivo de cierre sin dictado del curso.</span>
+      <textarea
+        id="motivoArchivo"
+        name="motivoArchivo"
+        required
+        aria-describedby="archivo-hint"
+        data-error="archivo-error"
+      >{{ vars.get('motivoRechazoOSinRespuesta', 'Se archiva la solicitud por rechazo o vencimiento de plazos.') }}</textarea>
+      <div id="archivo-error" class="error-msg">
+        <span role="img" aria-label="Error">❌</span> Indica las observaciones para archivar la solicitud.
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Confirmar Archivo de Solicitud</button>
+      <a href="{{ url_for('bandeja') }}" class="btn btn-secondary">Volver a la bandeja</a>
+    </div>
+  </form>
+</article>
+{% endblock %}
