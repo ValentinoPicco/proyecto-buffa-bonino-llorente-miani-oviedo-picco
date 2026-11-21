@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Acceso para Empresas — Portal de Capacitaciones{% endblock %}
+
+{% block content %}
+
+<div class="card" style="max-width: 480px; margin: 3rem auto;">
+
+  <div class="card-header">
+    <h1 class="card-title">Acceso para Empresas</h1>
+    <p class="card-description">
+      Identificate con la razón social y el email de contacto registrados en tu cuenta para
+      consultar y gestionar tus solicitudes de capacitación.
+    </p>
+  </div>
+
+  <form action="{{ url_for('login_empresa') }}" method="POST" novalidate>
+
+    <div class="form-group" style="margin-bottom: 1.25rem;">
+      <label for="empresa_nombre" class="form-label">
+        Razón Social <span class="required">*</span>
+      </label>
+      <input
+        type="text"
+        id="empresa_nombre"
+        name="empresa_nombre"
+        class="form-control"
+        placeholder="Ej: TechCorp S.A."
+        autocomplete="organization"
+        required
+        value="{{ prefill_nombre or '' }}"
+      >
+      <span class="form-hint">Debe coincidir exactamente con el nombre ingresado al solicitar el curso.</span>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 1.75rem;">
+      <label for="contacto_email" class="form-label">
+        Email de Contacto <span class="required">*</span>
+      </label>
+      <input
+        type="email"
+        id="contacto_email"
+        name="contacto_email"
+        class="form-control"
+        placeholder="lgomez@techcorp.com"
+        autocomplete="email"
+        required
+        value="{{ prefill_email or '' }}"
+      >
+      <span class="form-hint">El mismo email que registraste en tu primera solicitud.</span>
+    </div>
+
+    <div style="display: flex; gap: 1rem; justify-content: flex-end; flex-wrap: wrap;">
+      <a href="{{ url_for('portal') }}" class="btn btn-outline">Volver al inicio</a>
+      <button type="submit" class="btn btn-primary">Ingresar &rarr;</button>
+    </div>
+
+  </form>
+
+  <hr style="margin: 1.75rem 0; border: none; border-top: 1px solid var(--color-border);">
+
+  <p style="font-size: 0.875rem; color: var(--color-text-muted); text-align: center;">
+    ¿Primera vez? No necesitás registrarte: tu cuenta se crea automáticamente al
+    <a href="{{ url_for('index') }}" style="color: var(--color-primary); text-decoration: none; font-weight: 600;">solicitar un curso</a>.
+  </p>
+
+</div>
+
+{% endblock %}

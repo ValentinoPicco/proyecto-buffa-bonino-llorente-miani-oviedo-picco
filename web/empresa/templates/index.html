@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Solicitar Capacitación Corporativa - Instituto{% endblock %}
+
+{% block content %}
+
+<!-- Formulario de Solicitud de Curso -->
+<div class="card">
+  <div class="card-header">
+    <h1 class="card-title">Solicitud de Capacitación para Empresas</h1>
+    <p class="card-description">
+      Complete el siguiente formulario para iniciar la gestión de un nuevo curso de capacitación para su personal.
+      Nuestro equipo administrativo evaluará la viabilidad de la solicitud y emitirá una propuesta detallada.
+    </p>
+  </div>
+
+  <form action="{{ url_for('solicitar') }}" method="POST">
+    <div class="form-grid">
+      
+      <!-- Datos de la Empresa -->
+      <div class="form-group">
+        <label for="empresa_nombre" class="form-label">
+          Razón Social de la Empresa <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="empresa_nombre"
+          name="empresa_nombre"
+          class="form-control"
+          placeholder="Ej: TechCorp S.A."
+          value="{{ session.get('empresa_nombre', '') }}"
+          {% if session.get('empresa_id') %}readonly style="background-color: #f1f5f9;"{% endif %}
+          required
+        >
+        <span class="form-hint">Si ya tiene una cuenta previa, se vinculará automáticamente.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="contacto_nombre" class="form-label">
+          Nombre de la Persona de Contacto <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="contacto_nombre"
+          name="contacto_nombre"
+          class="form-control"
+          placeholder="Ej: Lic. Laura Gómez"
+          value="{{ session.get('contacto_nombre', '') }}"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="contacto_email" class="form-label">
+          Email de Contacto Corporativo <span class="required">*</span>
+        </label>
+        <input
+          type="email"
+          id="contacto_email"
+          name="contacto_email"
+          class="form-control"
+          placeholder="lgomez@techcorp.com"
+          value="{{ session.get('contacto_email', '') }}"
+          {% if session.get('empresa_id') %}readonly style="background-color: #f1f5f9;"{% endif %}
+          required
+        >
+      </div>
+
+      <!-- Datos de la Capacitación -->
+      <div class="form-group">
+        <label for="curso_nombre" class="form-label">
+          Temática o Título del Curso <span class="required">*</span>
+        </label>
+        <input type="text" id="curso_nombre" name="curso_nombre" class="form-control" placeholder="Ej: Introducción a DevOps y Docker" required>
+      </div>
+
+      <div class="form-group">
+        <label for="cantidad_participantes" class="form-label">
+          Cantidad Estimada de Participantes <span class="required">*</span>
+        </label>
+        <input type="number" id="cantidad_participantes" name="cantidad_participantes" class="form-control" min="1" max="100" placeholder="Ej: 20" required>
+      </div>
+
+      <div class="form-group">
+        <label for="fechas_preferidas" class="form-label">
+          Fechas o Rango de Preferencia <span class="required">*</span>
+        </label>
+        <input type="text" id="fechas_preferidas" name="fechas_preferidas" class="form-control" placeholder="Ej: Diciembre 2026 (martes y jueves)" required>
+      </div>
+
+      <div class="form-group col-span-2">
+        <label for="curso_descripcion" class="form-label">
+          Descripción y Objetivos de la Capacitación
+        </label>
+        <textarea id="curso_descripcion" name="curso_descripcion" class="form-control" rows="4" placeholder="Describa brevemente las competencias que espera que adquieran sus empleados..."></textarea>
+      </div>
+
+    </div>
+
+    <div style="margin-top: 1.75rem; display: flex; justify-content: flex-end; gap: 1rem;">
+      <button type="submit" class="btn btn-primary">
+        Enviar Solicitud e Iniciar Proceso &rarr;
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Card de Acceso a Seguimiento -->
+<div class="card" style="background: #ffffff; border-style: dashed;">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h3 style="font-size: 1.1rem; font-weight: 700;">¿Ya tenés un curso aprobado o en gestión?</h3>
+      <p style="color: var(--color-text-muted); font-size: 0.9rem;">
+        Ingresá con tu Razón Social y Email para consultar el avance en tiempo real o descargar tus documentos.
+      </p>
+    </div>
+    {% if session.get('empresa_id') %}
+      <a href="{{ url_for('seguimiento') }}" class="btn btn-outline">Ver Mis Cursos &rarr;</a>
+    {% else %}
+      <a href="{{ url_for('login_empresa') }}" class="btn btn-outline">Acceso para Empresas &rarr;</a>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

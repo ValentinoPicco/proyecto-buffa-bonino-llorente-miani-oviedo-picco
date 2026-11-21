@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Instituto de Capacitación para Empresas{% endblock %}
+
+{% block main_class %}main-portal{% endblock %}
+
+{# Alertas centradas antes del hero #}
+{% block flash %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div style="max-width:1100px; margin:1.5rem auto; padding:0 1.5rem;">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category if category != 'error' else 'danger' }}">
+            <span>{{ message }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero / Portal de Inicio -->
+<div class="hero-section">
+  <div class="hero-inner">
+    <span class="hero-eyebrow">Capacitación Corporativa</span>
+    <h1 class="hero-title">Formamos los equipos<br>que impulsan tu empresa</h1>
+    <p class="hero-subtitle">
+      Diseñamos y dictamos programas de capacitación a medida para empresas de todos los sectores.
+      Desde la solicitud hasta la entrega del informe final, acompañamos cada etapa del proceso.
+    </p>
+
+    <div class="hero-actions">
+      <a href="{{ url_for('index') }}" class="btn btn-primary hero-btn-main">
+        Solicitar un Curso &rarr;
+      </a>
+      {% if not session.get('empresa_id') %}
+        <a href="{{ url_for('login_empresa') }}" class="btn btn-outline hero-btn-secondary">
+          Acceso para Empresas
+        </a>
+      {% else %}
+        <a href="{{ url_for('seguimiento') }}" class="btn btn-outline hero-btn-secondary">
+          Ver mis cursos &rarr;
+        </a>
+      {% endif %}
+    </div>
+
+    {% if session.get('empresa_id') %}
+      <p class="hero-welcome">
+        Bienvenida, <strong>{{ session.get('empresa_nombre') }}</strong>.
+        Ya tenés sesión iniciada.
+      </p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Tarjetas de beneficios / pasos del proceso -->
+<div class="features-grid">
+
+  <div class="feature-card">
+    <div class="feature-icon">📋</div>
+    <h3 class="feature-title">Solicitud simple</h3>
+    <p class="feature-desc">
+      Completá un formulario con los datos de tu empresa, la temática del curso y las fechas preferidas.
+      En minutos el proceso queda iniciado.
+    </p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">🤝</div>
+    <h3 class="feature-title">Propuesta personalizada</h3>
+    <p class="feature-desc">
+      Nuestro equipo administrativo evalúa la solicitud y elabora una propuesta con programa,
+      presupuesto y fechas posibles. Podés pedir modificaciones hasta llegar al acuerdo ideal.
+    </p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">🎓</div>
+    <h3 class="feature-title">Dictado profesional</h3>
+    <p class="feature-desc">
+      Un docente del equipo especializado lleva adelante el curso en la fecha acordada,
+      con materiales, aula y recursos ya coordinados.
+    </p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">📊</div>
+    <h3 class="feature-title">Informe de resultados</h3>
+    <p class="feature-desc">
+      Al finalizar recibís un informe completo con métricas de asistencia y evaluación,
+      descargable desde el portal en cualquier momento.
+    </p>
+  </div>
+
+</div>
+
+<!-- CTA final -->
+<div class="cta-banner">
+  <div class="cta-inner">
+    <h2 class="cta-title">¿Listo para capacitar a tu equipo?</h2>
+    <p class="cta-desc">El proceso es 100% gestionado en línea. Empezá ahora.</p>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Iniciar solicitud &rarr;</a>
+  </div>
+</div>
+
+{% endblock %}

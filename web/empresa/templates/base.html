@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Portal de Capacitaciones Corporativas{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/iconREC.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <!-- Encabezado Institucional -->
+  <header class="header">
+    <div class="header-container">
+      <a href="{{ url_for('portal') }}" class="brand" style="display: flex; align-items: center;">
+        <img src="{{ url_for('static', filename='img/logolimpioREC.png') }}" alt="ICE - Instituto de Capacitación para Empresas" height="50" style="display: block; border-radius: 3px;">
+      </a>
+
+      <nav class="nav-links">
+        <a href="{{ url_for('portal') }}" class="nav-link {% if request.endpoint == 'portal' %}active{% endif %}">
+          Inicio
+        </a>
+        <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+          Solicitar Curso
+        </a>
+        <a href="{{ url_for('seguimiento') }}" class="nav-link {% if 'seguimiento' in (request.endpoint or '') %}active{% endif %}">
+          Seguimiento de Mis Cursos
+        </a>
+        {% if session.get('empresa_id') %}
+          <span class="nav-empresa-badge">{{ session.get('empresa_nombre', '') }}</span>
+          <a href="{{ url_for('logout_empresa') }}" class="nav-link">Cerrar sesión</a>
+        {% else %}
+          <a href="{{ url_for('login_empresa') }}" class="nav-link {% if request.endpoint == 'login_empresa' %}active{% endif %}">
+            Acceso Empresa
+          </a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <!-- Contenido de la Página -->
+  <main class="{% block main_class %}main-content{% endblock %}">
+    {% block flash %}
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category if category != 'error' else 'danger' }}">
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    {% endblock %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Pie de página -->
+  <footer class="footer">
+    <p>Gestión y Tecnologías de Procesos de Negocio &bull; Plataforma Flowable BPMN &bull; Portal de Empresas</p>
+  </footer>
+
+</body>
+</html>

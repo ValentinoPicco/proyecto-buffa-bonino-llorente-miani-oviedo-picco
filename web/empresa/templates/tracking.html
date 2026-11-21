@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Seguimiento de Cursos - Portal de Empresas{% endblock %}
+
+{% block content %}
+
+<!-- Barra de búsqueda superior -->
+<div class="card" style="padding: 1.25rem 1.75rem; margin-bottom: 1.5rem;">
+  <form action="{{ url_for('seguimiento') }}" method="GET" style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+    <label for="q" style="font-weight: 600; font-size: 0.95rem;">Empresa o Solicitud:</label>
+    <input type="text" id="q" name="q" class="form-control" value="{{ query or '' }}" placeholder="Ingrese razón social, email de contacto o N° de solicitud..." style="flex: 1; min-width: 280px;" required>
+    <button type="submit" class="btn btn-primary btn-sm">Consultar</button>
+  </form>
+</div>
+
+{% if not cursos and not curso_detalle and query %}
+  <!-- Mensaje de no encontrado -->
+  <div class="card" style="text-align: center; padding: 3rem;">
+    <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--color-text-main); margin-bottom: 0.5rem;">
+      No se encontraron solicitudes registradas
+    </h3>
+    <p style="color: var(--color-text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+      No existen cursos vinculados a la búsqueda <strong>"{{ query }}"</strong>. Verifique los datos ingresados o registre una nueva solicitud.
+    </p>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Nueva Solicitud</a>
+  </div>
+
+{% elif cursos and not curso_detalle %}
+  <!-- Listado de Cursos de la Empresa -->
+  <div class="card">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+      <div>
+        <h2 class="card-title">Cursos de la Empresa</h2>
+        <p class="card-description">Historial de solicitudes y capacitaciones vinculadas a su cuenta.</p>
+      </div>
+      <a href="{{ url_for('index') }}" class="btn btn-outline btn-sm">+ Solicitar Otro Curso</a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>N° Solicitud</th>
+            <th>Empresa</th>
+            <th>Curso / Temática</th>
+            <th>Fecha Solicitud</th>
+            <th>Estado Actual</th>
+            <th>Documentos</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in cursos %}
+            <tr>
+              <td><strong>#{{ c.solicitud_id }}</strong></td>
+              <td>{{ c.empresa_nombre }}</td>
+              <td><strong>{{ c.curso_nombre }}</strong></td>
+              <td style="color: var(--color-text-muted); font-size: 0.85rem;">
+                {{ c.created_at.strftime('%d/%m/%Y %H:%M') if c.created_at else '-' }}
+              </td>
+              <td>
+                <span class="badge badge-{{ c.estado }}">
+                  {{ c.estado | replace('_', ' ') }}
+                </span>
+              </td>
+              <td>
+                {% if c.propuesta_pdf_nombre %}
+                  <a href="{{ url_for('descargar_pdf', filename=c.propuesta_pdf_nombre) }}" class="btn btn-outline btn-sm" title="Descargar Propuesta en PDF">
+                    📄 Propuesta (v{{ c.ultima_propuesta_version }})
+                  </a>
+                {% endif %}
+                {% if c.informe_pdf_nombre %}
+                  <a href="{{ url_for('descargar_pdf', filename=c.informe_pdf_nombre) }}" class="btn btn-outline btn-sm" title="Descargar Informe Final en PDF" style="margin-left: 0.25rem;">
+                    📊 Informe Final
+                  </a>
+                {% endif %}
+                {% if not c.propuesta_pdf_nombre and not c.informe_pdf_nombre %}
+                  <span style="color: var(--color-text-muted); font-size: 0.85rem;">En trámite</span>
+                {% endif %}
+              </td>
+              <td>
+                <a href="{{ url_for('ver_curso', solicitud_id=c.solicitud_id) }}" class="btn btn-primary btn-sm">
+                  Ver Avance &rarr;
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+{% elif curso_detalle %}
+  <!-- Vista de Detalle y Seguimiento en Tiempo Real del Curso -->
+  <div class="card">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.4rem;">
+          <span style="color: var(--color-text-muted); font-weight: 600;">Solicitud #{{ curso_detalle.id }}</span>
+          <span class="badge badge-{{ curso_detalle.estado }}">
+            {{ curso_detalle.estado | replace('_', ' ') }}
+          </span>
+        </div>
+        <h1 class="card-title">{{ curso_detalle.curso_nombre }}</h1>
+        <p class="card-description">
+          Empresa: <strong>{{ curso_detalle.empresa_nombre }}</strong> &bull; Contacto: {{ curso_detalle.contacto_nombre }} ({{ curso_detalle.contacto_email }})
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        {% if curso_detalle.propuesta_pdf_nombre %}
+          <a href="{{ url_for('descargar_pdf', filename=curso_detalle.propuesta_pdf_nombre) }}" class="btn btn-outline btn-sm">
+            📄 Descargar Propuesta Comercial
+          </a>
+        {% endif %}
+        {% if curso_detalle.informe_pdf_nombre %}
+          <a href="{{ url_for('descargar_pdf', filename=curso_detalle.informe_pdf_nombre) }}" class="btn btn-outline btn-sm">
+            📊 Descargar Informe de Resultados
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Información de la Solicitud -->
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; background: #f8fafc; padding: 1.25rem; border-radius: var(--radius-md); margin-bottom: 1.75rem; border: 1px solid var(--color-border);">
+      <div>
+        <div style="font-size: 0.8rem; color: var(--color-text-muted); font-weight: 600;">EXPEDIENTE MOTOR FLOWABLE</div>
+        <div style="font-family: monospace; font-size: 0.95rem; font-weight: 700; margin-top: 0.2rem;">
+          {{ curso_detalle.process_instance_id or 'No asignado' }}
+        </div>
+      </div>
+      <div>
+        <div style="font-size: 0.8rem; color: var(--color-text-muted); font-weight: 600;">PARTICIPANTES ESTIMADOS</div>
+        <div style="font-size: 0.95rem; font-weight: 700; margin-top: 0.2rem;">
+          {{ curso_detalle.cantidad_participantes }} personas
+        </div>
+      </div>
+      <div>
+        <div style="font-size: 0.8rem; color: var(--color-text-muted); font-weight: 600;">FECHAS PREFERIDAS</div>
+        <div style="font-size: 0.95rem; font-weight: 700; margin-top: 0.2rem;">
+          {{ curso_detalle.fechas_preferidas }}
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 4.1.2: RAMAS PARALELAS DURANTE LA PREPARACIÓN -->
+    <div style="margin-top: 2rem;">
+      <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem;">
+        Estado de la Preparación del Curso (Ejecución en Paralelo)
+      </h3>
+      <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: 1.25rem;">
+        Según los lineamientos del proceso, las tres ramas de preparación se gestionan de forma simultánea e independiente.
+      </p>
+
+      <div class="parallel-grid">
+        <!-- Rama 1: Inscripciones -->
+        <div class="parallel-card">
+          <div class="parallel-card-header">
+            <div class="parallel-dot {% if 'en_preparacion' in curso_detalle.estado or 'en_curso' in curso_detalle.estado %}active{% endif %}"></div>
+            <span>1. Inscripciones</span>
+          </div>
+          <p style="font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: 0.75rem;">
+            Recepción de la nómina enviada por la empresa y confección de la lista definitiva de alumnos.
+          </p>
+          <div style="font-size: 0.85rem; font-weight: 600; padding: 0.4rem 0.6rem; background: #fff; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
+            {% if actividades_activas | selectattr('key', 'in', ['Nomina', 'Lista']) | list %}
+              ⏳ Tarea activa: {{ (actividades_activas | selectattr('key', 'in', ['Nomina', 'Lista']) | first).nombre }}
+            {% elif curso_detalle.estado in ['en_curso', 'finalizado'] %}
+              ✅ Lista definitiva completada
+            {% else %}
+              ⚪ Pendiente de inicio de preparación
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Rama 2: Materiales -->
+        <div class="parallel-card">
+          <div class="parallel-card-header">
+            <div class="parallel-dot {% if 'en_preparacion' in curso_detalle.estado or 'en_curso' in curso_detalle.estado %}active{% endif %}"></div>
+            <span>2. Materiales Didácticos</span>
+          </div>
+          <p style="font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: 0.75rem;">
+            Preparación y armado de los materiales didácticos requeridos para el dictado.
+          </p>
+          <div style="font-size: 0.85rem; font-weight: 600; padding: 0.4rem 0.6rem; background: #fff; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
+            {% if actividades_activas | selectattr('key', 'equalto', 'Material') | list %}
+              ⏳ Tarea activa: Preparación de materiales en curso
+            {% elif curso_detalle.estado in ['en_curso', 'finalizado'] %}
+              ✅ Materiales preparados
+            {% else %}
+              ⚪ Pendiente de inicio de preparación
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Rama 3: Recursos -->
+        <div class="parallel-card">
+          <div class="parallel-card-header">
+            <div class="parallel-dot {% if 'en_preparacion' in curso_detalle.estado or 'en_curso' in curso_detalle.estado %}active{% endif %}"></div>
+            <span>3. Recursos y Logística</span>
+          </div>
+          <p style="font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: 0.75rem;">
+            Evaluación y reserva de aula física, aula virtual y/o equipamiento especial contratado.
+          </p>
+          <div style="font-size: 0.85rem; font-weight: 600; padding: 0.4rem 0.6rem; background: #fff; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
+            {% if actividades_activas | selectattr('key', 'in', ['Activity_12i2hpf', 'Aula', 'Virtual', 'Equipo']) | list %}
+              ⏳ Tarea activa: {{ (actividades_activas | selectattr('key', 'in', ['Activity_12i2hpf', 'Aula', 'Virtual', 'Equipo']) | first).nombre }}
+            {% elif curso_detalle.estado in ['en_curso', 'finalizado'] %}
+              ✅ Recursos reservados y listos
+            {% else %}
+              ⚪ Pendiente de inicio de preparación
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actividades en Ejecución en Vivo desde Flowable REST -->
+    {% if actividades_activas %}
+      <div style="margin-top: 1.5rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-md); padding: 1.25rem;">
+        <h4 style="font-size: 0.95rem; font-weight: 700; color: #166534; margin-bottom: 0.5rem;">
+          ⚡ Actividades detectadas en vivo en el motor Flowable:
+        </h4>
+        <ul style="padding-left: 1.5rem; font-size: 0.9rem; color: #14532d;">
+          {% for act in actividades_activas %}
+            <li style="margin-bottom: 0.35rem;">
+              <strong>{{ act.nombre }}</strong> &mdash; <em>{{ act.assignee }}</em>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+  </div>
+{% endif %}
+
+{% endblock %}

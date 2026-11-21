@@ -270,3 +270,80 @@ def get_solicitudes_por_empresa(query: str) -> list[dict[str, Any]]:
         return []
     finally:
         conn.close()
+
+# Busca una empresa por razón social y email de contacto para el login de empresa.
+def get_empresa_by_nombre_and_email(nombre: str, email: str) -> dict[str, Any] | None:
+
+    conn = get_connection()
+    if not conn:
+        return None
+
+    nombre_limpio = (nombre or "").strip()
+    email_limpio = (email or "").strip().lower()
+
+    try:
+        with conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT id, nombre, contacto_nombre, contacto_email
+                  FROM empresas
+                 WHERE LOWER(TRIM(nombre)) = LOWER(%s)
+                   AND LOWER(TRIM(contacto_email)) = %s
+                 LIMIT 1
+                """,
+                (nombre_limpio, email_limpio),
+            )
+            return cur.fetchone()
+    except Exception as exc:
+        print(f"[db_client] Error en get_empresa_by_nombre_and_email: {exc}")
+        return None
+    finally:
+        conn.close()
+
+# Obtiene exclusivamente las solicitudes de una empresa por su ID exacto.
+def get_solicitudes_by_empresa_id(empresa_id: int) -> list[dict[str, Any]]:
+    conn = get_connection()
+    if not conn:
+        return []
+
+    try:
+        with conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT s.id AS solicitud_id,
+                       s.process_instance_id,
+                       s.nombre AS curso_nombre,
+                       s.descripcion,
+                       s.cantidad_participantes,
+                       s.fechas_preferidas,
+                       s.estado,
+                       s.created_at,
+                       e.id AS empresa_id,
+                       e.nombre AS empresa_nombre,
+                       e.contacto_nombre,
+                       e.contacto_email,
+                       (SELECT p.version
+                          FROM propuestas p
+                         WHERE p.solicitud_id = s.id
+                         ORDER BY p.version DESC LIMIT 1) AS ultima_propuesta_version,
+                       (SELECT p.pdf_nombre
+                          FROM propuestas p
+                         WHERE p.solicitud_id = s.id
+                         ORDER BY p.version DESC LIMIT 1) AS propuesta_pdf_nombre,
+                       (SELECT ir.pdf_nombre
+                          FROM informes_resultados ir
+                         WHERE ir.solicitud_id = s.id
+                         ORDER BY ir.id DESC LIMIT 1) AS informe_pdf_nombre
+                  FROM solicitudes_curso s
+                  JOIN empresas e ON e.id = s.empresa_id
+                 WHERE s.empresa_id = %s
+                 ORDER BY s.created_at DESC
+                """,
+                (empresa_id,),
+            )
+            return cur.fetchall()
+    except Exception as exc:
+        print(f"[db_client] Error en get_solicitudes_by_empresa_id: {exc}")
+        return []
+    finally:
+        conn.close()
