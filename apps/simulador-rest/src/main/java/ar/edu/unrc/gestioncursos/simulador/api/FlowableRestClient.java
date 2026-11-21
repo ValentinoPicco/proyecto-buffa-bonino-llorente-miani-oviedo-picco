@@ -49,6 +49,20 @@ public final class FlowableRestClient {
         return ejecutar(request);
     }
 
+    /**
+     * GET sobre una URL absoluta devuelta por la propia API REST. Se usa para
+     * metadatos de recursos, que Flowable publica con URL completa.
+     */
+    public JsonNode getUrl(String urlCompleta) {
+        HttpRequest request = HttpRequest.newBuilder(URI.create(urlCompleta))
+                .timeout(requestTimeout)
+                .header("Accept", "application/json")
+                .header("Authorization", authorization)
+                .GET()
+                .build();
+        return ejecutar(request);
+    }
+
     public JsonNode put(String path, ObjectNode cuerpo) {
         HttpRequest request = baseRequest(uri(path, Map.of()))
                 .header("Content-Type", "application/json")
@@ -63,6 +77,33 @@ public final class FlowableRestClient {
                 .POST(HttpRequest.BodyPublishers.ofString(serializar(cuerpo), StandardCharsets.UTF_8))
                 .build();
         return ejecutar(request);
+    }
+
+    /**
+     * Descarga un recurso de texto (por ejemplo el XML del BPMN) usando una URL
+     * absoluta devuelta por la propia API REST.
+     */
+    public String getTexto(String urlCompleta) {
+        HttpRequest request = HttpRequest.newBuilder(URI.create(urlCompleta))
+                .timeout(requestTimeout)
+                .header("Accept", "application/xml, text/xml, */*")
+                .header("Authorization", authorization)
+                .GET()
+                .build();
+        try {
+            HttpResponse<String> response = httpClient.send(request,
+                    HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            int status = response.statusCode();
+            if (status < 200 || status >= 300) {
+                throw new RestException(status, mensajeDeError(response.body(), status));
+            }
+            return response.body();
+        } catch (IOException e) {
+            throw new RestException("No se pudo descargar el recurso " + urlCompleta + ": " + e.getMessage(), e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RestException("La descarga del recurso fue interrumpida.", e);
+        }
     }
 
     public String baseUrl() {

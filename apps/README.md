@@ -63,6 +63,15 @@ Flowable usa como nombre de suscripcion el atributo `name` del elemento `<messag
 
 > El documento `CONTRATO_VARIABLES.md` de la raiz del repositorio menciona los valores de `messageExpression`. Para los eventos con `messageRef` esos valores no son los que expone el motor; los nombres de esta tabla son los verificados contra la instancia en ejecucion.
 
+## Comportamiento del simulador (4.2.2)
+
+`simulador-rest` lista las instancias activas y consulta, para cada una, sus
+actividades y suscripciones de mensaje. A partir de eso habilita solo las
+acciones posibles: aceptar, rechazar o pedir modificaciones cuando la instancia
+espera esa respuesta; enviar la nomina cuando la receive task `Nomina` esta
+activa; y cancelar cuando existe la suscripcion `cancelacionMsg`. No usa la base
+de datos ni depende de la version del proceso.
+
 ## Variables que utilizan estas apps
 
 | Variable | Tipo | App | Uso |
@@ -71,4 +80,4 @@ Flowable usa como nombre de suscripcion el atributo `name` del elemento `<messag
 | `fechaCurso` | string ISO-8601 | `simulador-rest` | Fecha acordada al aceptar la propuesta. |
 | `observacionesEmpresa` | string | `simulador-rest` | Observaciones al solicitar modificaciones. |
 | `nominaParticipantes` | string | `simulador-rest` | Nomina enviada por la empresa. |
-| `empresaNombre`, `cursoNombre`, `solicitudId` | string / long | `desktop-java` | Datos de contexto para mostrar en la tabla de tareas. |
+| `empresaNombre`, `cursoNombre`, `solicitudId` | string / long | Ambas apps | Datos de contexto para mostrar en las tablas. |
