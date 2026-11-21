@@ -5,6 +5,12 @@ BASE_DIR = Path(__file__).resolve().parent
 PDF_OUTPUT_DIR = BASE_DIR / "generated_pdfs"
 PDF_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+# Puerto del Portal Web Interno (web/empresa corre en el 5001)
+PORT = int(os.environ.get("PORT", "5000"))
+
+# URL del Portal Público de Empresas (Buffa) para navegación cruzada
+PORTAL_EMPRESA_URL = os.environ.get("PORTAL_EMPRESA_URL", "http://localhost:5001")
+
 # Configuración de sesión Flask
 SECRET_KEY = os.environ.get("FLASK_SECRET_KEY", "dev-secret-key-portal-interno-unrc")
 

@@ -338,8 +338,8 @@ execution.setVariable("estadoCurso", "en_preparacion");]]></script>
       </extensionElements>
     </serviceTask>
     <scriptTask id="sid-9013B867-901F-4311-9F11-8627F07F7920" name="Evaluar instancias activas" scriptFormat="groovy" flowable:autoStoreVariables="false">
-      <script><![CDATA[def runtime = execution.getEngineServices().getRuntimeService()
-def total  = runtime.createProcessInstanceQuery().processDefinitionKey("Process_Curso").count()
+      <script><![CDATA[def runtimeService = org.flowable.engine.impl.context.Context.getProcessEngineConfiguration().getRuntimeService()
+def total = runtimeService.createProcessInstanceQuery().processDefinitionKey("Process_Curso").count()
 def otras = Math.max(0, (total - 1) as int)
 execution.setVariable("otrasInstancias", otras)]]></script>
     </scriptTask>

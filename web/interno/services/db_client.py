@@ -138,6 +138,119 @@ def sync_informe_to_db(
                 """,
                 (sol_id, informe_resultados, porcentaje_asistencia, pdf_nombre),
             )
+            cur.execute(
+                """
+                UPDATE solicitudes_curso
+                   SET estado = 'en_curso',
+                       updated_at = CURRENT_TIMESTAMP
+                 WHERE id = %s AND estado NOT IN ('finalizado', 'cancelado')
+                """,
+                (sol_id,),
+            )
+        return True
+    except Exception:
+        return False
+    finally:
+        conn.close()
+
+
+def sync_estado_solicitud(
+    process_instance_id: str,
+    nuevo_estado: str,
+    solicitud_id: int | None = None,
+) -> bool:
+    """
+    Sincroniza el estado de la solicitud en 'solicitudes_curso' para que el Portal de Empresas
+    (web/empresa/) refleje en tiempo real la etapa actual del proceso.
+    Estados válidos en schema: 'solicitado', 'no_viable', 'en_propuesta', 'rechazado',
+    'en_preparacion', 'en_curso', 'finalizado', 'cancelado', 'cerrado_sin_respuesta'.
+    """
+    estados_validos = {
+        "solicitado",
+        "no_viable",
+        "en_propuesta",
+        "rechazado",
+        "en_preparacion",
+        "en_curso",
+        "finalizado",
+        "cancelado",
+        "cerrado_sin_respuesta",
+    }
+    if nuevo_estado not in estados_validos:
+        return False
+
+    conn = get_connection()
+    if not conn:
+        return False
+    try:
+        with conn, conn.cursor() as cur:
+            sol_id = _resolve_solicitud_id(cur, process_instance_id, solicitud_id)
+            if not sol_id:
+                return False
+
+            cur.execute(
+                """
+                UPDATE solicitudes_curso
+                   SET estado = %s,
+                       updated_at = CURRENT_TIMESTAMP
+                 WHERE id = %s
+                """,
+                (nuevo_estado, sol_id),
+            )
+        return True
+    except Exception:
+        return False
+    finally:
+        conn.close()
+
+
+def sync_participantes_to_db(
+    process_instance_id: str,
+    lista_definitiva: str,
+    solicitud_id: int | None = None,
+) -> bool:
+    """
+    Registra los participantes de la lista definitiva en la tabla 'participantes'
+    y asegura que la solicitud esté en estado 'en_preparacion'.
+    Soporta líneas con formato 'Nombre, Documento, Email' o texto libre por línea.
+    """
+    conn = get_connection()
+    if not conn:
+        return False
+    try:
+        with conn, conn.cursor() as cur:
+            sol_id = _resolve_solicitud_id(cur, process_instance_id, solicitud_id)
+            if not sol_id:
+                return False
+
+            cur.execute("DELETE FROM participantes WHERE solicitud_id = %s", (sol_id,))
+
+            for raw_line in (lista_definitiva or "").splitlines():
+                line = raw_line.strip().lstrip("-*•0123456789.) ").strip()
+                if not line:
+                    continue
+                parts = [p.strip() for p in line.replace(";", ",").split(",") if p.strip()]
+                nombre = parts[0][:150] if parts else line[:150]
+                documento = parts[1][:40] if len(parts) > 1 else None
+                email = parts[2][:180] if len(parts) > 2 else None
+
+                cur.execute(
+                    """
+                    INSERT INTO participantes (solicitud_id, nombre, documento, email)
+                    VALUES (%s, %s, %s, %s)
+                    """,
+                    (sol_id, nombre, documento, email),
+                )
+
+            cur.execute(
+                """
+                UPDATE solicitudes_curso
+                   SET estado = 'en_preparacion',
+                       updated_at = CURRENT_TIMESTAMP
+                 WHERE id = %s AND estado IN ('solicitado', 'en_propuesta')
+                """,
+                (sol_id,),
+            )
         return True
     except Exception:
         return False

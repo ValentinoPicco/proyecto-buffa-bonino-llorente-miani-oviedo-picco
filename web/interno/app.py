@@ -11,8 +11,13 @@ from flask import (
     url_for,
 )
 
-from config import PDF_OUTPUT_DIR, SECRET_KEY
-from services.db_client import sync_informe_to_db, sync_propuesta_to_db
+from config import PDF_OUTPUT_DIR, PORT, PORTAL_EMPRESA_URL, SECRET_KEY
+from services.db_client import (
+    sync_estado_solicitud,
+    sync_informe_to_db,
+    sync_participantes_to_db,
+    sync_propuesta_to_db,
+)
 from services.flowable_client import (
     DOCENTES_DISPONIBLES,
     authenticate_user,
@@ -59,6 +64,7 @@ def inject_globals():
     return {
         "current_user": session.get("user"),
         "generated_pdfs": pdfs,
+        "portal_empresa_url": PORTAL_EMPRESA_URL,
     }
 
 
@@ -160,6 +166,14 @@ def task_detail(task_id: str):
     task_key = task.get("taskDefinitionKey", "")
     proc_vars = task.get("variables", {})
     proc_id = task.get("processInstanceId", "sin-id")
+    sol_id = proc_vars.get("solicitudId")
+
+    # Sincronizar el estado en institucion_db al ingresar a tareas de etapas posteriores
+    # para que el Portal de Empresas (web/empresa) refleje la transición inmediatamente.
+    if task_key in ("Lista", "Activity_12i2hpf", "Activity_1018bdz"):
+        sync_estado_solicitud(proc_id, "en_preparacion", solicitud_id=sol_id)
+    elif task_key in ("Dictar", "Informe"):
+        sync_estado_solicitud(proc_id, "en_curso", solicitud_id=sol_id)
 
     if request.method == "POST":
         variables_to_send = []
@@ -207,7 +221,7 @@ def task_detail(task_id: str):
                 version=new_version,
                 pdf_nombre=pdf_path.name,
                 observaciones_empresa=notas_revision or proc_vars.get("observacionesEmpresa", ""),
-                solicitud_id=proc_vars.get("solicitudId"),
+                solicitud_id=sol_id,
             )
 
             # Enunciado 1.1: "El contador de recordatorios se reinicia con cada nueva versión enviada de la propuesta"
@@ -230,9 +244,18 @@ def task_detail(task_id: str):
             if not motivo:
                 flash("Indica el motivo de archivo de la solicitud.", "error")
                 return redirect(url_for("task_detail", task_id=task_id))
+
+            resultado_actual = proc_vars.get("resultadoProceso")
+            if resultado_actual not in ("rechazado", "cerrado_sin_respuesta"):
+                rec_count = int(proc_vars.get("recordatorios") or 0)
+                resultado_actual = "cerrado_sin_respuesta" if rec_count >= 2 else "rechazado"
+
+            sync_estado_solicitud(proc_id, resultado_actual, solicitud_id=sol_id)
+
             variables_to_send = [
                 {"name": "motivoArchivo", "type": "string", "value": motivo},
                 {"name": "solicitudArchivada", "type": "boolean", "value": True},
+                {"name": "resultadoProceso", "type": "string", "value": resultado_actual},
             ]
 
         # 3. Confeccionar lista definitiva (Lista)
@@ -242,6 +265,13 @@ def task_detail(task_id: str):
             if not lista_def:
                 flash("La lista definitiva de participantes no puede estar vacía.", "error")
                 return redirect(url_for("task_detail", task_id=task_id))
+
+            sync_participantes_to_db(
+                process_instance_id=proc_id,
+                lista_definitiva=lista_def,
+                solicitud_id=sol_id,
+            )
+
             variables_to_send = [
                 {"name": "listaDefinitiva", "type": "string", "value": lista_def},
                 {"name": "observacionesLista", "type": "string", "value": obs_lista},
@@ -261,6 +291,8 @@ def task_detail(task_id: str):
                 )
                 return redirect(url_for("task_detail", task_id=task_id))
 
+            sync_estado_solicitud(proc_id, "en_preparacion", solicitud_id=sol_id)
+
             variables_to_send = [
                 {"name": "requiereAula", "type": "boolean", "value": req_aula},
                 {"name": "requierePlataforma", "type": "boolean", "value": req_plat},
@@ -275,6 +307,8 @@ def task_detail(task_id: str):
                 flash("Selecciona un docente válido del equipo docente.", "error")
                 return redirect(url_for("task_detail", task_id=task_id))
 
+            sync_estado_solicitud(proc_id, "en_curso", solicitud_id=sol_id)
+
             variables_to_send = [
                 {"name": "docenteSeleccionado", "type": "string", "value": docente_sel},
             ]
@@ -286,6 +320,8 @@ def task_detail(task_id: str):
             if not obs_dictado:
                 flash("Ingresa las observaciones de finalización del dictado.", "error")
                 return redirect(url_for("task_detail", task_id=task_id))
+
+            sync_estado_solicitud(proc_id, "en_curso", solicitud_id=sol_id)
 
             variables_to_send = [
                 {"name": "observacionesDictado", "type": "string", "value": obs_dictado},
@@ -321,7 +357,7 @@ def task_detail(task_id: str):
                 informe_resultados=informe_texto,
                 porcentaje_asistencia=asistencia_val,
                 pdf_nombre=pdf_path.name,
-                solicitud_id=proc_vars.get("solicitudId"),
+                solicitud_id=sol_id,
             )
 
             variables_to_send = [
@@ -334,6 +370,7 @@ def task_detail(task_id: str):
         # 8. Enviar informe a empresa y Archivar expediente (EnviarInforme)
         elif task_key == "EnviarInforme":
             mensaje_envio = request.form.get("mensajeEnvioInforme", "").strip()
+            sync_estado_solicitud(proc_id, "finalizado", solicitud_id=sol_id)
             variables_to_send = [
                 {"name": "mensajeEnvioInforme", "type": "string", "value": mensaje_envio},
                 {"name": "expedienteArchivado", "type": "boolean", "value": True},
@@ -371,4 +408,5 @@ def page_not_found(_e):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    print(f"=== Iniciando Portal Web Interno en http://localhost:{PORT} ===")
+    app.run(host="0.0.0.0", port=PORT, debug=True)

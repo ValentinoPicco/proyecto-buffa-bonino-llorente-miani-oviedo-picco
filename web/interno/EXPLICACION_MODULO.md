@@ -113,8 +113,12 @@ Utiliza `fpdf2` (con un generador PDF 1.4 de respaldo sin dependencias externas)
 ---
 
 ### D. Sincronización con la Base de Datos Institucional (`services/db_client.py`)
-* Al completar una propuesta (`sync_propuesta_to_db`) o un informe de resultados (`sync_informe_to_db`), intenta actualizar la fila correspondiente al `process_instance_id` en la tabla `cursos` de la base `institucion_db` (Sección 3.2 del enunciado).
-* Utiliza bloques `try/except` tolerantes a fallos para que, si la tabla aún no fue creada o tiene variaciones durante el desarrollo, no interrumpa la ejecución del motor Flowable.
+* Se integra con las tablas reales definidas en `db/institucion_schema.sql` (`solicitudes_curso`, `propuestas`, `participantes` e `informes_resultados`) y con el Portal de Empresas (`web/empresa/`):
+  * **`sync_propuesta_to_db(...)`:** Inserta o actualiza la versión de la propuesta en `propuestas` (incluyendo `pdf_nombre`) y pasa `solicitudes_curso.estado` a `'en_propuesta'`.
+  * **`sync_participantes_to_db(...)`:** Al confeccionar la lista definitiva (`Lista`), registra a los inscriptos en la tabla `participantes` y actualiza el estado a `'en_preparacion'`.
+  * **`sync_informe_to_db(...)`:** Registra el informe final y su PDF en `informes_resultados`.
+  * **`sync_estado_solicitud(...)`:** Mantiene sincronizada la columna `estado` en `solicitudes_curso` (`'en_preparacion'`, `'en_curso'`, `'finalizado'`, `'rechazado'`, `'cerrado_sin_respuesta'`) a medida que avanzan las tareas en Flowable, para que la vista de seguimiento de empresas refleje cada transición en tiempo real.
+* Utiliza bloques `try/except` tolerantes a fallos para no interrumpir la ejecución del motor Flowable si la base de datos no está disponible.
 
 ---
 

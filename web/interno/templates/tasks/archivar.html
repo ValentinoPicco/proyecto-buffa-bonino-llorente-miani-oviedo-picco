@@ -21,8 +21,16 @@
         <dd>{{ vars.get('recordatorios', 0) }}</dd>
       </div>
       <div>
-        <dt>Causal Registrada</dt>
-        <dd>{{ vars.get('motivoRechazoOSinRespuesta', 'Rechazo de la empresa o falta de respuesta.') }}</dd>
+        <dt>Causal Registrada (<code>resultadoProceso</code>)</dt>
+        <dd>
+          {% if vars.get('resultadoProceso') == 'cerrado_sin_respuesta' or (vars.get('recordatorios') | int >= 2) %}
+            Vencimiento de plazo tras 2 recordatorios sin respuesta (<code>cerrado_sin_respuesta</code>)
+          {% elif vars.get('resultadoProceso') == 'rechazado' %}
+            Rechazo de la propuesta por parte de la empresa (<code>rechazado</code>)
+          {% else %}
+            {{ vars.get('motivoRechazoOSinRespuesta', 'Rechazo de la empresa o falta de respuesta.') }}
+          {% endif %}
+        </dd>
       </div>
     </dl>
   </section>
@@ -37,7 +45,7 @@
         required
         aria-describedby="archivo-hint"
         data-error="archivo-error"
-      >{{ vars.get('motivoRechazoOSinRespuesta', 'Se archiva la solicitud por rechazo o vencimiento de plazos.') }}</textarea>
+      >{% if vars.get('resultadoProceso') == 'cerrado_sin_respuesta' or (vars.get('recordatorios') | int >= 2) %}Se archiva la solicitud por vencimiento del plazo de respuesta tras enviar 2 recordatorios.{% else %}Se archiva la solicitud por rechazo de la propuesta comercial por parte de la empresa.{% endif %}</textarea>
       <div id="archivo-error" class="error-msg">
         <span role="img" aria-label="Error">❌</span> Indica las observaciones para archivar la solicitud.
       </div>

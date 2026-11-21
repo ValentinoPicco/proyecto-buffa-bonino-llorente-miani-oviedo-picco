@@ -29,4 +29,4 @@ pip install -r requirements.txt
 python3 app.py
 ```
 
-Luego abre `http://localhost:5001` en el navegador.
+Luego abre `http://localhost:5000` en el navegador (el Portal de Empresas corre en paralelo en `http://localhost:5001`).
