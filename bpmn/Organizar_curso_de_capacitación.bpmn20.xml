@@ -315,7 +315,8 @@ execution.setVariable("estadoCurso", "confirmado");]]></script>
     </userTask>
     <scriptTask id="Activity_1eg7zcl" name="Habilitar acceso de la empresa" scriptFormat="groovy" flowable:autoStoreVariables="false">
       <script><![CDATA[execution.setVariable("accesoEmpresaHabilitado", true);
-execution.setVariable("estadoCurso", "en_preparacion");]]></script>
+execution.setVariable("estadoCurso", "en_preparacion");
+execution.setVariable("cursoCancelado", false);]]></script>
     </scriptTask>
     <scriptTask id="Enviar" name="Enviar propuesta" scriptFormat="groovy" flowable:autoStoreVariables="false">
       <script><![CDATA[execution.setVariable("recordatorios", 0);]]></script>
@@ -558,7 +559,7 @@ execution.setVariable("otrasInstancias", otras)]]></script>
         <omgdc:Bounds height="80.0" width="100.0" x="1395.0" y="1690.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="Activity_1eg7zcl" id="BPMNShape_Activity_1eg7zcl">
-        <omgdc:Bounds height="80.0" width="100.0" x="1400.0" y="550.0"></omgdc:Bounds>
+        <omgdc:Bounds height="80.0" width="100.0" x="1394.99998960644" y="539.9999959766865"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="Enviar" id="BPMNShape_Enviar">
         <omgdc:Bounds height="80.0" width="100.0" x="665.0" y="310.0"></omgdc:Bounds>
@@ -759,8 +760,8 @@ execution.setVariable("otrasInstancias", otras)]]></script>
         <omgdi:waypoint x="1492.0001805860031" y="995.8843013906298"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="Flow_1ffpwga" id="BPMNEdge_Flow_1ffpwga" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="630.0" flowable:targetDockerY="445.0">
-        <omgdi:waypoint x="1416.126126126126" y="629.9499999999999"></omgdi:waypoint>
-        <omgdi:waypoint x="1356.8045045045044" y="700.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1412.0796365943893" y="619.9499959766864"></omgdi:waypoint>
+        <omgdi:waypoint x="1346.1977768178" y="700.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="Flow_1sdjeh6" id="BPMNEdge_Flow_1sdjeh6" flowable:sourceDockerX="70.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="70.0" flowable:targetDockerY="40.0">
         <omgdi:waypoint x="1116.95" y="1910.0"></omgdi:waypoint>
@@ -798,8 +799,8 @@ execution.setVariable("otrasInstancias", otras)]]></script>
         <omgdi:waypoint x="1000.0" y="1520.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="Flow_05hw5hu" id="BPMNEdge_Flow_05hw5hu" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
-        <omgdi:waypoint x="1226.9487982465103" y="587.1884309953191"></omgdi:waypoint>
-        <omgdi:waypoint x="1399.9999999999966" y="589.3697478991596"></omgdi:waypoint>
+        <omgdi:waypoint x="1226.9433879265946" y="586.5495552545235"></omgdi:waypoint>
+        <omgdi:waypoint x="1394.9999896064394" y="581.5006406829593"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-5678B138-57D2-4789-A7C8-279B130F7A97" id="BPMNEdge_sid-5678B138-57D2-4789-A7C8-279B130F7A97" flowable:sourceDockerX="15.5" flowable:sourceDockerY="15.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
         <omgdi:waypoint x="257.76132697716474" y="221.94782140285372"></omgdi:waypoint>
