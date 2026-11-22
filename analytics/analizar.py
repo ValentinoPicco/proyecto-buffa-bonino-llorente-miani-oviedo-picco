@@ -11,7 +11,6 @@ TIPOS_VALIDOS = [
     "scriptTask",
     "dmn",
     "businessRuleTask",
-    "intermediateCatchEvent",
 ]
 df = df[df["tipo"].isin(TIPOS_VALIDOS)].copy()
 

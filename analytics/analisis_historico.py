@@ -50,12 +50,21 @@ MAPA_VARIABLE_RESULTADO = {
 # IDs BPMN de cancelación y ramas de preparación (Organizar_curso_de_capacitación.bpmn20.xml)
 ACTIVIDADES_CANCELACION = {
     "Event_1g4xmqo",     # Recibir Cancelación
+    "sid-31631671-5772-4D55-BF51-B1FF3F94A6C7",  # Marcar cancelado
+    "sid-2DE91E9F-956A-4102-851E-74814609FFBF",  # Pausa cancelación
+    "sid-0895FF62-ECF9-4BE6-9BEF-365FED2966D2",  # Fin cancelación
     "Event_0snigbc",     # Error fin cancelación
     "Event_0farfur",     # Boundary error en Preparar
     "Activity_12e0et1",  # Notificar Cierre
     "Event_0w2kitf",     # Fin por cancelación
 }
 ACTIVIDADES_RECURSOS = {"Aula", "Virtual", "Equipo"}
+
+#tareas técnicas auxiliares que no corresponden al enunciado
+TAREAS_TECNICAS_EXCLUIDAS ={
+    "sid-2DE91E9F-956A-4102-851E-74814609FFBF",
+    "UserTask_PausaCancel",
+}
 
 
 def consultar_todos(session, recurso, filtros):
@@ -136,12 +145,12 @@ def clasificar_resultado(instancia, actividades):
 
     if end_id == "Fin":
         return "Curso finalizado"
-    if end_id == "Event_0w2kitf" or (act_ids_finalizadas & ACTIVIDADES_CANCELACION):
+    if end_id == "Event_0w2kitf" or obtener_variable(instancia, "cursoCancelado") is True or (act_ids_finalizadas & ACTIVIDADES_CANCELACION):
         return "Cancelación"
     if end_id == "Event_18edb9q" or "Activity_0iibzwu" in act_ids_finalizadas:
         return "Solicitud no viable"
     if end_id == "FinSinCurso" or "Archivar" in act_ids_finalizadas:
-        if "Rechazar" in act_ids_finalizadas:
+        if "Rechazado" in act_ids_finalizadas:
             return "Rechazo de la propuesta"
         return "Cierre por falta de respuesta"
 
@@ -233,7 +242,7 @@ def reporte_432_preparacion_paralela(instancias_validas, actividades_por_instanc
         }
 
         # Excluir instancias que sufrieron cancelación durante la preparación.
-        if act_ids_finalizadas & ACTIVIDADES_CANCELACION:
+        if (obtener_variable(inst, "cursoCancelado") is True or act_ids_finalizadas & ACTIVIDADES_CANCELACION):
             continue
 
         # Verificar que el subproceso Preparar haya completado normalmente.
@@ -329,6 +338,10 @@ def reporte_433_distribucion_tareas(session, ids_instancias_eliminadas):
     for tarea in tareas:
         # Excluir tareas de instancias eliminadas administrativamente.
         if tarea.get("processInstanceId") in ids_instancias_eliminadas:
+            continue
+
+        # Excluir tareas técnicas auxiliares
+        if tarea.get("taskDefinitionKey") in TAREAS_TECNICAS_EXCLUIDAS:
             continue
 
         # Excluir tareas sin fecha de fin (pendientes).

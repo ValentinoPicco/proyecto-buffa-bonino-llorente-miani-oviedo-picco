@@ -18,13 +18,9 @@ ACTIVIDADES = {
     "Activity_0iibzwu",  # Notificar Desición (scriptTask)
     "Propuesta",         # Registrar y Elaborar propuesta (userTask)
     "Enviar",            # Enviar propuesta (scriptTask)
-    "Modificar",         # Modificaciones (intermediateCatchEvent)
     "Revisar",           # Revisar propuesta (userTask)
-    "Plazo",             # 5 días (intermediateCatchEvent)
     "Recordatorio",      # Enviar recordatorio (scriptTask)
-    "Rechazar",          # Rechazo (intermediateCatchEvent)
     "Archivar",          # Archivar solicitud (userTask)
-    "Aceptar",           # Aceptación (intermediateCatchEvent)
     "Activity_1eg7zcl",  # Habilitar acceso de la empresa (scriptTask)
 }
 
