@@ -211,6 +211,7 @@ def task_detail(task_id: str):
                 presupuesto=presupuesto_val,
                 fechas_posibles=fechas_posibles,
                 observaciones_previas=notas_revision or proc_vars.get("observacionesEmpresa", ""),
+                solicitud_id=sol_id,
             )
 
             sync_propuesta_to_db(
@@ -350,6 +351,7 @@ def task_detail(task_id: str):
                 porcentaje_asistencia=asistencia_val,
                 informe_resultados=informe_texto,
                 observaciones_dictado=proc_vars.get("observacionesDictado", ""),
+                solicitud_id=sol_id,
             )
 
             sync_informe_to_db(

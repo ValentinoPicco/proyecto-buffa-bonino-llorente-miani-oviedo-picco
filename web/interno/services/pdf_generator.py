@@ -1,5 +1,7 @@
 from datetime import datetime
 from pathlib import Path
+import re
+import unicodedata
 from typing import Any
 
 from config import PDF_OUTPUT_DIR
@@ -18,6 +20,33 @@ def _sanitize_latin1(text: Any) -> str:
     return str(text).encode("latin-1", errors="replace").decode("latin-1")
 
 
+def _slugify(text: Any, max_len: int = 28) -> str:
+    """Convierte un nombre de empresa o curso en un identificador limpio y legible para el archivo PDF."""
+    if not text:
+        return ""
+    norm = unicodedata.normalize("NFKD", str(text)).encode("ascii", "ignore").decode("ascii")
+    clean = re.sub(r"[^a-zA-Z0-9]+", "_", norm).strip("_")
+    return clean[:max_len].strip("_")
+
+
+def _build_readable_prefix(
+    doc_type: str,
+    process_instance_id: str,
+    solicitud_id: int | str | None = None,
+    empresa_nombre: str = "",
+) -> str:
+    empresa_slug = _slugify(empresa_nombre, max_len=28)
+    if solicitud_id:
+        id_part = f"sol{solicitud_id}"
+    else:
+        safe_proc = "".join(c if c.isalnum() else "" for c in str(process_instance_id))
+        id_part = safe_proc[:8] or "curso"
+
+    if empresa_slug:
+        return f"{doc_type}_{id_part}_{empresa_slug}"
+    return f"{doc_type}_{id_part}"
+
+
 def generate_propuesta_pdf(
     process_instance_id: str,
     version: int,
@@ -28,13 +57,14 @@ def generate_propuesta_pdf(
     presupuesto: float | str,
     fechas_posibles: str,
     observaciones_previas: str = "",
+    solicitud_id: int | str | None = None,
 ) -> Path:
     """
     Genera el PDF de la Propuesta de Capacitación (Versión inicial o Nueva versión revisada).
     Devuelve la ruta del archivo generado en generated_pdfs/.
     """
-    safe_proc_id = "".join(c if c.isalnum() or c in ("-", "_") else "_" for c in str(process_instance_id))
-    filename = f"propuesta_{safe_proc_id}_v{version}.pdf"
+    prefix = _build_readable_prefix("propuesta", process_instance_id, solicitud_id, empresa_nombre)
+    filename = f"{prefix}_v{version}.pdf"
     output_path = PDF_OUTPUT_DIR / filename
 
     fecha_emision = datetime.now().strftime("%d/%m/%Y %H:%M")
@@ -104,13 +134,14 @@ def generate_informe_pdf(
     porcentaje_asistencia: int | str,
     informe_resultados: str,
     observaciones_dictado: str = "",
+    solicitud_id: int | str | None = None,
 ) -> Path:
     """
     Genera el PDF del Informe de Resultados Final del Curso.
     Devuelve la ruta del archivo generado en generated_pdfs/.
     """
-    safe_proc_id = "".join(c if c.isalnum() or c in ("-", "_") else "_" for c in str(process_instance_id))
-    filename = f"informe_{safe_proc_id}.pdf"
+    prefix = _build_readable_prefix("informe", process_instance_id, solicitud_id, empresa_nombre)
+    filename = f"{prefix}.pdf"
     output_path = PDF_OUTPUT_DIR / filename
 
     fecha_emision = datetime.now().strftime("%d/%m/%Y %H:%M")

@@ -163,7 +163,17 @@ execution.setVariable("recordatorios", r);]]></script>
       <receiveTask id="Nomina" name="Recibir nómina"></receiveTask>
       <userTask id="Lista" name="Confeccionar lista definitiva" flowable:candidateGroups="adm" flowable:formFieldValidation="true">
         <extensionElements>
-          <flowable:taskListener event="create" expression="${task.setAssignee(task.getEngineServices().getTaskService().createTaskQuery().taskAssignee('admin2').active().count() &lt;= task.getEngineServices().getTaskService().createTaskQuery().taskAssignee('admin_boss').active().count() ? 'admin2' : 'admin_boss')}"></flowable:taskListener>
+          <flowable:taskListener event="create" class="org.flowable.engine.impl.bpmn.listener.ScriptTaskListener">
+            <flowable:field name="language">
+              <flowable:string><![CDATA[groovy]]></flowable:string>
+            </flowable:field>
+            <flowable:field name="script">
+              <flowable:string><![CDATA[def ts = org.flowable.engine.impl.context.Context.getProcessEngineConfiguration().getTaskService()
+def c2 = ts.createTaskQuery().taskAssignee('admin2').active().count()
+def cb = ts.createTaskQuery().taskAssignee('admin_boss').active().count()
+task.setAssignee(c2 <= cb ? 'admin2' : 'admin_boss')]]></flowable:string>
+            </flowable:field>
+          </flowable:taskListener>
           <modeler:group-info-name-adm xmlns:modeler="http://flowable.org/modeler"><![CDATA[Administración]]></modeler:group-info-name-adm>
           <modeler:activiti-idm-candidate-group xmlns:modeler="http://flowable.org/modeler"><![CDATA[true]]></modeler:activiti-idm-candidate-group>
           <modeler:initiator-can-complete xmlns:modeler="http://flowable.org/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
@@ -270,9 +280,9 @@ Recursos" flowable:candidateGroups="adm" flowable:formFieldValidation="true">
       <sequenceFlow id="Flow_0pbsav2" sourceRef="Material" targetRef="ParFin"></sequenceFlow>
       <sequenceFlow id="Flow_1q09oq9" sourceRef="Lista" targetRef="ParFin"></sequenceFlow>
       <sequenceFlow id="Flow_1j917g3" sourceRef="Nomina" targetRef="Lista"></sequenceFlow>
-      <sequenceFlow id="Association_0oqohax" sourceRef="Event_1ypcc1j" targetRef="Activity_1m08pcl"></sequenceFlow>
-      <sequenceFlow id="Association_0f6fnvw" sourceRef="Event_1gsyqer" targetRef="Activity_02hrooc"></sequenceFlow>
-      <sequenceFlow id="Association_1fh67xn" sourceRef="sid-FFB10310-1EC7-47CC-8F71-627D8DC0DE8F" targetRef="Activity_16zz91p"></sequenceFlow>
+      <association id="Association_0oqohax" sourceRef="Event_1ypcc1j" targetRef="Activity_1m08pcl" associationDirection="One"></association>
+      <association id="Association_0f6fnvw" sourceRef="Event_1gsyqer" targetRef="Activity_02hrooc" associationDirection="One"></association>
+      <association id="Association_1fh67xn" sourceRef="sid-FFB10310-1EC7-47CC-8F71-627D8DC0DE8F" targetRef="Activity_16zz91p" associationDirection="One"></association>
     </subProcess>
     <userTask id="Propuesta" name="Registrar y Elaborar propuesta" flowable:assignee="admin_boss" flowable:formFieldValidation="true">
       <extensionElements>
