@@ -18,6 +18,20 @@ DOCENTES_DISPONIBLES = [
     {"id": "teaching2", "nombre": "teaching the second (Docente 2)"},
 ]
 
+# Tareas correspondientes exclusivamente al Portal Web Interno según Secciones 4.1.3 y 4.1.4 del enunciado
+# (Excluye 'Material' que corresponde a la App Java 4.2.1, y las reservas/compensaciones que van por Flowable UI)
+PORTAL_INTERNO_TASK_KEYS = {
+    "Propuesta",
+    "Revisar",
+    "Archivar",
+    "Lista",
+    "Activity_12i2hpf",
+    "Activity_1018bdz",
+    "Dictar",
+    "Informe",
+    "EnviarInforme",
+}
+
 
 def _variables_list_to_dict(vars_list: list[dict[str, Any]]) -> dict[str, Any]:
     """Convierte el array de variables de Flowable REST en un diccionario clave -> valor."""
@@ -121,6 +135,7 @@ def get_tasks_for_user(
         assigned_tasks = [
             _normalize_flowable_task(t)
             for t in (assigned_resp.json().get("data", []) if assigned_resp.ok else [])
+            if t.get("taskDefinitionKey") in PORTAL_INTERNO_TASK_KEYS
         ]
 
         # 2. Tareas candidatas para sus grupos ('adm' o 'teach')
@@ -138,7 +153,8 @@ def get_tasks_for_user(
             )
             if cand_resp.ok:
                 for t in cand_resp.json().get("data", []):
-                    claimable_map[t["id"]] = _normalize_flowable_task(t)
+                    if t.get("taskDefinitionKey") in PORTAL_INTERNO_TASK_KEYS:
+                        claimable_map[t["id"]] = _normalize_flowable_task(t)
 
         # 3. Tareas donde el usuario es candidateUser directo
         cand_user_resp = requests.get(
@@ -153,7 +169,8 @@ def get_tasks_for_user(
         )
         if cand_user_resp.ok:
             for t in cand_user_resp.json().get("data", []):
-                claimable_map[t["id"]] = _normalize_flowable_task(t)
+                if t.get("taskDefinitionKey") in PORTAL_INTERNO_TASK_KEYS:
+                    claimable_map[t["id"]] = _normalize_flowable_task(t)
 
         return {
             "assigned": assigned_tasks,
