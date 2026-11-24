@@ -52,7 +52,7 @@ public final class LoginFrame extends JFrame {
         contenedor.setBorder(BorderFactory.createEmptyBorder(24, 28, 20, 28));
 
         JLabel titulo = new JLabel("Preparacion de materiales");
-        titulo.setFont(titulo.getFont().deriveFont(Font.BOLD, 20f));
+        titulo.setFont(titulo.getFont().deriveFont(Font.BOLD, 33f));
 
         JLabel subtitulo = new JLabel("Acceso con credenciales de Flowable");
         subtitulo.setForeground(new Color(90, 90, 90));
@@ -90,7 +90,7 @@ public final class LoginFrame extends JFrame {
         centro.add(javax.swing.Box.createVerticalStrut(10));
 
         estadoLabel.setForeground(new Color(160, 40, 40));
-        estadoLabel.setPreferredSize(new Dimension(330, 20));
+        estadoLabel.setPreferredSize(new Dimension(1080, 540));
         centro.add(estadoLabel);
         contenedor.add(centro, BorderLayout.CENTER);
 
@@ -99,7 +99,7 @@ public final class LoginFrame extends JFrame {
                 + escapar(config.get("db.url", "(sin configurar)"))
                 + "<br>Configuracion: " + escapar(config.getOrigen())
                 + "</span></html>");
-        configuracion.setFont(configuracion.getFont().deriveFont(10f));
+        configuracion.setFont(configuracion.getFont().deriveFont(33f));
         pie.add(configuracion, BorderLayout.NORTH);
 
         JPanel botones = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 0, 0));

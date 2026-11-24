@@ -11,6 +11,8 @@ import java.awt.Font;
 
 public final class Main {
 
+    private static final float TAMANIO_FUENTE = 33f;
+
     private Main() {
     }
 
@@ -56,9 +58,10 @@ public final class Main {
         } catch (Exception ignored) {
             // Se usa el look and feel por defecto.
         }
-        Font base = UIManager.getFont("Label.font");
-        if (base != null) {
-            UIManager.put("Label.font", base.deriveFont(base.getSize2D() + 1f));
+        for (Object clave : UIManager.getDefaults().keySet()) {
+            if (UIManager.get(clave) instanceof Font fuente) {
+                UIManager.put(clave, fuente.deriveFont(TAMANIO_FUENTE));
+            }
         }
     }
 

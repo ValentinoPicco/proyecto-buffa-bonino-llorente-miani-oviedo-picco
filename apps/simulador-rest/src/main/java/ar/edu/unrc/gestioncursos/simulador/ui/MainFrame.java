@@ -77,7 +77,7 @@ public final class MainFrame extends JFrame {
         configurarTabla();
         conectarEventos();
 
-        setPreferredSize(new Dimension(1120, 700));
+        setPreferredSize(new Dimension(2100, 1400));
         pack();
         setLocationRelativeTo(null);
         cargar(null);
@@ -88,7 +88,7 @@ public final class MainFrame extends JFrame {
         contenido.setBorder(BorderFactory.createEmptyBorder(18, 22, 16, 22));
 
         JLabel titulo = new JLabel("Simulación de comunicaciones");
-        titulo.setFont(titulo.getFont().deriveFont(Font.BOLD, 20f));
+        titulo.setFont(titulo.getFont().deriveFont(Font.BOLD, 33f));
 
         JLabel sesion = new JLabel("Usuario REST: " + usuario + "   |   Proceso: " + processDefinitionKey);
         sesion.setForeground(new Color(80, 80, 80));
@@ -114,7 +114,7 @@ public final class MainFrame extends JFrame {
         detalle.setEditable(false);
         detalle.setLineWrap(true);
         detalle.setWrapStyleWord(true);
-        detalle.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        detalle.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 33));
         detalle.setBackground(new Color(249, 249, 249));
         detalle.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
         JScrollPane scrollDetalle = new JScrollPane(detalle);
@@ -144,7 +144,9 @@ public final class MainFrame extends JFrame {
 
     private void configurarTabla() {
         tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tabla.setRowHeight(24);
+        tabla.setFont(tabla.getFont().deriveFont(33f));
+        tabla.getTableHeader().setFont(tabla.getFont());
+        tabla.setRowHeight(46);
         tabla.setFillsViewportHeight(true);
         tabla.getTableHeader().setReorderingAllowed(false);
         tabla.setAutoCreateRowSorter(false);

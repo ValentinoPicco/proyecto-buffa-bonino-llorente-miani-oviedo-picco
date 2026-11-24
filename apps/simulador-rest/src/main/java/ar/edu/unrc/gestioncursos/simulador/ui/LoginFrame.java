@@ -57,7 +57,7 @@ public final class LoginFrame extends JFrame {
         contenedor.setBorder(BorderFactory.createEmptyBorder(24, 28, 20, 28));
 
         JLabel titulo = new JLabel("Simulacion de comunicaciones");
-        titulo.setFont(titulo.getFont().deriveFont(Font.BOLD, 20f));
+        titulo.setFont(titulo.getFont().deriveFont(Font.BOLD, 33f));
 
         JLabel subtitulo = new JLabel("Conexion con la API REST de Flowable");
         subtitulo.setForeground(new Color(90, 90, 90));
@@ -84,14 +84,14 @@ public final class LoginFrame extends JFrame {
         centro.add(javax.swing.Box.createVerticalStrut(10));
 
         estadoLabel.setForeground(new Color(70, 70, 70));
-        estadoLabel.setPreferredSize(new Dimension(560, 40));
+        estadoLabel.setPreferredSize(new Dimension(1080, 540));
         centro.add(estadoLabel);
         contenedor.add(centro, BorderLayout.CENTER);
 
         JPanel pie = new JPanel(new BorderLayout(0, 10));
         JLabel configuracion = new JLabel("<html><span style='color:#777777'>Configuracion: "
                 + escapar(config.getOrigen()) + "</span></html>");
-        configuracion.setFont(configuracion.getFont().deriveFont(10f));
+        configuracion.setFont(configuracion.getFont().deriveFont(33f));
         pie.add(configuracion, BorderLayout.NORTH);
 
         JPanel botones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
