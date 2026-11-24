@@ -21,9 +21,6 @@
   <message id="Msg_resenc" name="Respuesta de encuesta"></message>
   <message id="Msg_informe" name="Informe de resultados"></message>
   <process id="Process_Curso" name="Institución de capacitación" isExecutable="true">
-    <extensionElements>
-      <flowable:executionListener event="end" expression="${execution.setVariable('finRegistrado', true)}"></flowable:executionListener>
-    </extensionElements>
     <laneSet id="laneSet_Process_Curso">
       <lane id="Lane_0sq5phl" name="Docentes">
         <flowNodeRef>Dictar</flowNodeRef>
