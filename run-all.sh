@@ -25,12 +25,18 @@ trap cleanup EXIT INT TERM
 echo "[1/5] Verificando Docker (Flowable + PostgreSQL)..."
 (cd "${ROOT_DIR}/docker" && docker compose up -d)
 
+ensure_venv() {
+    local dir="$1"
+    if [ ! -x "${dir}/.venv/bin/python3" ]; then
+        echo "  Creando entorno virtual e instalando dependencias en ${dir}..."
+        python3 -m venv "${dir}/.venv"
+        "${dir}/.venv/bin/pip" install -q -r "${dir}/requirements.txt"
+    fi
+}
+
 # 2. Portal de Empresas (:5001)
 echo "[2/5] Iniciando Portal de Empresas (http://localhost:5001)..."
-if [ ! -x "${ROOT_DIR}/web/empresa/.venv/bin/python3" ]; then
-    echo "Error: falta el entorno virtual en web/empresa/.venv" >&2
-    exit 1
-fi
+ensure_venv "${ROOT_DIR}/web/empresa"
 (
     cd "${ROOT_DIR}/web/empresa"
     exec .venv/bin/python3 app.py
@@ -39,10 +45,7 @@ PIDS+=($!)
 
 # 3. Portal Interno (:5000)
 echo "[3/5] Iniciando Portal Interno (http://localhost:5000)..."
-if [ ! -x "${ROOT_DIR}/web/interno/.venv/bin/python3" ]; then
-    echo "Error: falta el entorno virtual en web/interno/.venv" >&2
-    exit 1
-fi
+ensure_venv "${ROOT_DIR}/web/interno"
 (
     cd "${ROOT_DIR}/web/interno"
     exec .venv/bin/python3 app.py
