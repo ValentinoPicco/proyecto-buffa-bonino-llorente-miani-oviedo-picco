@@ -7,6 +7,17 @@ from services import db_client, flowable_client
 app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
 
+
+def _sync_curso_estado(curso: dict) -> None:
+    """Sincroniza el estado de la solicitud en institucion_db con el estado real en Flowable."""
+    proc_id = curso.get("process_instance_id")
+    if not proc_id:
+        return
+    estado_real = flowable_client.infer_estado_from_flowable(proc_id)
+    if estado_real and estado_real != curso.get("estado"):
+        db_client.update_solicitud_estado(proc_id, estado_real)
+        curso["estado"] = estado_real
+
 # Portal de inicio público
 @app.route("/")
 def portal():
@@ -43,6 +54,9 @@ def login_empresa():
 
         # Verificar si la empresa tiene acceso habilitado (al menos una propuesta aceptada -> en_preparacion o posterior)
         cursos_empresa = db_client.get_solicitudes_por_empresa(empresa["nombre"])
+        for c in cursos_empresa:
+            if c.get("empresa_id") == empresa["id"]:
+                _sync_curso_estado(c)
 
         # ELIMINAR "solicitado" y "en_propuesta" PARA ENTREGA FINAL !!!!!
         estados_habilitados = {"en_preparacion", "en_curso", "finalizado", "cancelado", "solicitado", "en_propuesta"}
@@ -165,6 +179,8 @@ def seguimiento():
     # Traemos todas las solicitudes de esa empresa y filtramos estrictamente por su empresa_id
     todas = db_client.get_solicitudes_por_empresa(empresa_nombre)
     cursos = [c for c in todas if c.get("empresa_id") == empresa_id]
+    for c in cursos:
+        _sync_curso_estado(c)
 
     return render_template("tracking.html", cursos=cursos, query=empresa_nombre, curso_detalle=None)
 
@@ -184,6 +200,8 @@ def ver_curso(solicitud_id: int):
     if curso.get("empresa_id") != session["empresa_id"]:
         flash("No tenés permisos para ver solicitudes de otra empresa.", "danger")
         return redirect(url_for("seguimiento"))
+
+    _sync_curso_estado(curso)
 
     # Consultar documentos asociados (propuesta o informe)
     busqueda_asociada = db_client.get_solicitudes_por_empresa(str(solicitud_id))

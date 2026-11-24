@@ -265,13 +265,65 @@ def get_process_variables(process_instance_id: str) -> dict[str, Any]:
 
         # Si ya terminó, consultar en historial
         hist_resp = requests.get(
-            f"{FLOWABLE_PROCESS_API}/history/historic-process-instances/{process_instance_id}/variables",
+            f"{FLOWABLE_PROCESS_API}/history/historic-variable-instances",
+            params={"processInstanceId": process_instance_id, "size": 100},
             auth=auth,
             timeout=5,
         )
         if hist_resp.ok:
-            return _variables_list_to_dict(hist_resp.json())
+            hist_vars = [
+                item["variable"]
+                for item in hist_resp.json().get("data", [])
+                if isinstance(item.get("variable"), dict)
+            ]
+            return _variables_list_to_dict(hist_vars)
 
         return {}
     except requests.RequestException:
         return {}
+
+
+ESTADOS_FINALES = {
+    "finalizado",
+    "cancelado",
+    "rechazado",
+    "cerrado_sin_respuesta",
+    "no_viable",
+}
+
+
+def infer_estado_from_flowable(process_instance_id: str) -> str | None:
+    """Infiere el estado real del curso en institucion_db consultando Flowable (runtime/history)."""
+    if not process_instance_id:
+        return None
+
+    status = get_process_instance_status(process_instance_id)
+    if status.get("state") in ("no_encontrada", "error_conexion", "desconocido"):
+        return None
+
+    vars_dict = get_process_variables(process_instance_id)
+    resultado = vars_dict.get("resultadoProceso")
+
+    if status.get("ended"):
+        if resultado in ESTADOS_FINALES:
+            return str(resultado)
+        if vars_dict.get("cursoCancelado"):
+            return "cancelado"
+        return None
+
+    actividades = get_active_tasks_and_activities(process_instance_id)
+    keys = {a.get("key") for a in actividades if a.get("key")}
+
+    if keys & {"Dictar", "Informe", "EnviarInforme"}:
+        return "en_curso"
+    if (
+        keys & {"Nomina", "Lista", "Material", "Activity_12i2hpf", "Aula", "Virtual", "Equipo", "Activity_1018bdz", "Fecha"}
+        or vars_dict.get("estadoCurso") in ("en_preparacion", "confirmado")
+    ):
+        return "en_preparacion"
+    if "Archivar" in keys:
+        return str(resultado) if resultado in ("rechazado", "cerrado_sin_respuesta") else "rechazado"
+    if keys & {"Propuesta", "Revisar", "Esperar"}:
+        return "en_propuesta"
+
+    return "solicitado"
