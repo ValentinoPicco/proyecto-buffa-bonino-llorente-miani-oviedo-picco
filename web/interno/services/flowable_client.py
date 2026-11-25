@@ -18,6 +18,9 @@ DOCENTES_DISPONIBLES = [
     {"id": "teaching2", "nombre": "teaching the second (Docente 2)"},
 ]
 
+# Cupo máximo de aulas físicas disponibles simultáneamente en la institución
+MAX_AULAS_FISICAS = 2
+
 # Tareas correspondientes exclusivamente al Portal Web Interno según Secciones 4.1.3 y 4.1.4 del enunciado
 # (Excluye 'Material' que corresponde a la App Java 4.2.1, y las reservas/compensaciones que van por Flowable UI)
 PORTAL_INTERNO_TASK_KEYS = {
@@ -265,3 +268,52 @@ def complete_task(
         return False, f"Error al completar tarea en Flowable (HTTP {resp.status_code}): {resp.text}"
     except requests.RequestException as exc:
         return False, f"Error de conexión con Flowable: {exc}"
+
+
+def get_aulas_fisicas_status(
+    username: str,
+    password: str,
+    exclude_process_instance_id: str = "",
+) -> dict[str, Any]:
+    """
+    Consulta cuántas instancias activas de Process_Curso tienen un aula física ocupada
+    (aulaOcupada == True o requiereAula == True sin cursoCancelado == True).
+    """
+    auth = HTTPBasicAuth(username, password)
+    ocupadas_cursos: list[str] = []
+
+    try:
+        resp = requests.get(
+            f"{FLOWABLE_PROCESS_API}/runtime/process-instances",
+            params={
+                "processDefinitionKey": "Process_Curso",
+                "includeProcessVariables": "true",
+                "size": 100,
+            },
+            auth=auth,
+            timeout=5,
+        )
+        if resp.ok:
+            for inst in resp.json().get("data", []):
+                pid = inst.get("id", "")
+                if pid == exclude_process_instance_id:
+                    continue
+                vdict = _variables_list_to_dict(inst.get("variables", []))
+                # Si la instancia ya fue cancelada o liberó el aula, no cuenta como ocupada
+                if vdict.get("cursoCancelado") is True or vdict.get("aulaOcupada") is False:
+                    continue
+                if vdict.get("aulaOcupada") is True or vdict.get("requiereAula") is True:
+                    label = f"{vdict.get('empresaNombre', 'Empresa')} ({vdict.get('cursoNombre', 'Curso')})"
+                    ocupadas_cursos.append(label)
+    except requests.RequestException:
+        pass
+
+    ocupadas = len(ocupadas_cursos)
+    disponibles = max(0, MAX_AULAS_FISICAS - ocupadas)
+    return {
+        "max": MAX_AULAS_FISICAS,
+        "ocupadas": ocupadas,
+        "disponibles": disponibles,
+        "hay_cupo": disponibles > 0,
+        "cursos_ocupando": ocupadas_cursos,
+    }

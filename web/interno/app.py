@@ -23,6 +23,7 @@ from services.flowable_client import (
     authenticate_user,
     claim_task,
     complete_task,
+    get_aulas_fisicas_status,
     get_task_by_id,
     get_tasks_for_user,
 )
@@ -292,6 +293,21 @@ def task_detail(task_id: str):
                 )
                 return redirect(url_for("task_detail", task_id=task_id))
 
+            if req_aula:
+                aulas_info = get_aulas_fisicas_status(
+                    username=user["id"],
+                    password=password,
+                    exclude_process_instance_id=proc_id,
+                )
+                if not aulas_info["hay_cupo"]:
+                    cursos_txt = ", ".join(aulas_info["cursos_ocupando"])
+                    flash(
+                        f"No es posible reservar Aula Física: las {aulas_info['max']} aulas físicas de la institución "
+                        f"están actualmente ocupadas por: {cursos_txt}. Selecciona Aula Virtual o libera un aula.",
+                        "error",
+                    )
+                    return redirect(url_for("task_detail", task_id=task_id))
+
             sync_estado_solicitud(proc_id, "en_preparacion", solicitud_id=sol_id)
 
             variables_to_send = [
@@ -389,12 +405,21 @@ def task_detail(task_id: str):
         if ok:
             return redirect(url_for("bandeja"))
 
+    aulas_info = None
+    if task_key == "Activity_12i2hpf":
+        aulas_info = get_aulas_fisicas_status(
+            username=user["id"],
+            password=password,
+            exclude_process_instance_id=proc_id,
+        )
+
     template_name = TASK_TEMPLATES.get(task_key, "tasks/propuesta.html")
     return render_template(
         template_name,
         task=task,
         vars=proc_vars,
         docentes=DOCENTES_DISPONIBLES,
+        aulas_info=aulas_info,
     )
 
 
