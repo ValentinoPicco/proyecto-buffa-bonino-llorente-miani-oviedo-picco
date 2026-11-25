@@ -58,7 +58,6 @@ def login_empresa():
             if c.get("empresa_id") == empresa["id"]:
                 _sync_curso_estado(c)
 
-        # ELIMINAR "solicitado" y "en_propuesta" PARA ENTREGA FINAL !!!!!
         estados_habilitados = {"en_preparacion", "en_curso", "finalizado", "cancelado", "solicitado", "en_propuesta"}
         tiene_acceso = any(
             c.get("empresa_id") == empresa["id"] and c.get("estado") in estados_habilitados
