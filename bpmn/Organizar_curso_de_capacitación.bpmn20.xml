@@ -247,8 +247,31 @@ Recursos" flowable:candidateGroups="adm" flowable:formFieldValidation="true">
           <modeler:initiator-can-complete xmlns:modeler="http://flowable.org/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
         </extensionElements>
       </userTask>
-      <serviceTask id="Aula" name="Reservar aula" flowable:expression="${true}"></serviceTask>
-      <serviceTask id="Activity_16zz91p" name="Liberar Aula" isForCompensation="true" flowable:expression="${true}"></serviceTask>
+      <serviceTask id="Aula" name="Reservar aula" flowable:expression="${true}">
+        <extensionElements>
+          <flowable:executionListener event="start" class="org.flowable.engine.impl.bpmn.listener.ScriptExecutionListener">
+            <flowable:field name="language">
+              <flowable:string><![CDATA[groovy]]></flowable:string>
+            </flowable:field>
+            <flowable:field name="script">
+              <flowable:string><![CDATA[def rs = org.flowable.engine.impl.context.Context.getProcessEngineConfiguration().getRuntimeService()
+def ocupadas = rs.createProcessInstanceQuery().processDefinitionKey("Process_Curso").variableValueEquals("aulaOcupada", true).count()
+if (ocupadas >= 2 && execution.getVariable("aulaOcupada") != true) {
+    throw new RuntimeException("No hay aulas físicas disponibles en la institución (2/2 ocupadas).")
+}
+execution.setVariable("aulaOcupada", true)
+if (!execution.getVariable("aulaAsignada")) {
+    execution.setVariable("aulaAsignada", "Aula Física " + (ocupadas + 1))
+}]]></flowable:string>
+            </flowable:field>
+          </flowable:executionListener>
+        </extensionElements>
+      </serviceTask>
+      <serviceTask id="Activity_16zz91p" name="Liberar Aula" isForCompensation="true" flowable:expression="${true}">
+        <extensionElements>
+          <flowable:executionListener event="start" expression="${execution.setVariable('aulaOcupada', false)}"></flowable:executionListener>
+        </extensionElements>
+      </serviceTask>
       <scriptTask id="Activity_02hrooc" name="Liberar Aula Virtual" isForCompensation="true" scriptFormat="groovy" flowable:autoStoreVariables="false">
         <script><![CDATA[execution.setVariable("aulaVirtualLiberada", true);]]></script>
       </scriptTask>
@@ -313,6 +336,7 @@ execution.setVariable("estadoCurso", "confirmado");]]></script>
     <userTask id="EnviarInforme" name="Enviar informe a empresa y Archivar expediente." flowable:assignee="admin_boss" flowable:formFieldValidation="true">
       <extensionElements>
         <flowable:executionListener event="end" expression="${execution.setVariable('resultadoProceso', 'finalizado')}"></flowable:executionListener>
+        <flowable:executionListener event="end" expression="${execution.setVariable('aulaOcupada', false)}"></flowable:executionListener>
         <modeler:activiti-idm-assignee xmlns:modeler="http://flowable.org/modeler"><![CDATA[true]]></modeler:activiti-idm-assignee>
         <modeler:assignee-info-email xmlns:modeler="http://flowable.org/modeler"><![CDATA[admin_boss@gmail.com]]></modeler:assignee-info-email>
         <modeler:assignee-info-firstname xmlns:modeler="http://flowable.org/modeler"><![CDATA[admin]]></modeler:assignee-info-firstname>
