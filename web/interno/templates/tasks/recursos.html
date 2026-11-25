@@ -24,6 +24,27 @@
         <dt>Descripción del Curso</dt>
         <dd>{{ vars.get('cursoDescripcion', '-') }}</dd>
       </div>
+      {% if aulas_info %}
+      <div style="grid-column: 1 / -1;">
+        <dt>Disponibilidad de Aulas Físicas en la Institución (Cupo máximo: {{ aulas_info.max }})</dt>
+        <dd>
+          {% if aulas_info.hay_cupo %}
+            <span class="badge" style="background: #dcfce7; color: #166534;">
+              ✅ {{ aulas_info.disponibles }} disponible(s) ({{ aulas_info.ocupadas }}/{{ aulas_info.max }} ocupadas)
+            </span>
+          {% else %}
+            <span class="badge" style="background: #fee2e2; color: #991b1b;">
+              ❌ Sin cupo de Aula Física ({{ aulas_info.ocupadas }}/{{ aulas_info.max }} ocupadas)
+            </span>
+          {% endif %}
+          {% if aulas_info.cursos_ocupando %}
+            <div style="margin-top: 0.35rem; font-size: 0.875rem; color: var(--text-muted, #475569);">
+              Cursos utilizando aula física actualmente: <strong>{{ aulas_info.cursos_ocupando | join(' · ') }}</strong>
+            </div>
+          {% endif %}
+        </dd>
+      </div>
+      {% endif %}
     </dl>
   </section>
 
@@ -50,6 +71,9 @@
         >
         <label for="requiereAula">
           <strong>Reservar Aula Física</strong> (Variable BPMN: <code>requiereAula = true</code> · Servicio automático)
+          {% if aulas_info and not aulas_info.hay_cupo %}
+            <br><small style="color: #b91c1c; font-weight: 600;">⚠️ Las {{ aulas_info.max }} aulas físicas están ocupadas. Si intentas reservar aula física, el sistema rechazará la solicitud hasta que se libere un aula.</small>
+          {% endif %}
         </label>
       </div>
 
