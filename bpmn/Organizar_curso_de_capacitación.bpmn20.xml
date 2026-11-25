@@ -217,7 +217,9 @@ Recursos" flowable:candidateGroups="adm" flowable:formFieldValidation="true">
           <messageEventDefinition flowable:messageExpression="cancelacionMsg"></messageEventDefinition>
         </startEvent>
         <scriptTask id="sid-31631671-5772-4D55-BF51-B1FF3F94A6C7" name="Marcar cancelado" scriptFormat="groovy" flowable:autoStoreVariables="false">
-          <script><![CDATA[execution.setVariable("cursoCancelado", true);]]></script>
+          <script><![CDATA[def rs = org.flowable.engine.impl.context.Context.getProcessEngineConfiguration().getRuntimeService()
+rs.setVariable(execution.getProcessInstanceId(), "cursoCancelado", true)
+rs.setVariable(execution.getProcessInstanceId(), "aulaOcupada", false)]]></script>
         </scriptTask>
         <userTask id="sid-2DE91E9F-956A-4102-851E-74814609FFBF" name="Dejar una User Task para que pare" flowable:assignee="admin_boss" flowable:formFieldValidation="true">
           <extensionElements>
@@ -255,13 +257,21 @@ Recursos" flowable:candidateGroups="adm" flowable:formFieldValidation="true">
             </flowable:field>
             <flowable:field name="script">
               <flowable:string><![CDATA[def rs = org.flowable.engine.impl.context.Context.getProcessEngineConfiguration().getRuntimeService()
-def ocupadas = rs.createProcessInstanceQuery().processDefinitionKey("Process_Curso").variableValueEquals("aulaOcupada", true).count()
-if (ocupadas >= 2 && execution.getVariable("aulaOcupada") != true) {
+def pid = execution.getProcessInstanceId()
+def activas = rs.createProcessInstanceQuery().processDefinitionKey("Process_Curso").variableValueEquals("aulaOcupada", true).list()
+def ocupadas = 0
+for (inst in activas) {
+    if (inst.getId() == pid) continue
+    def cancelado = rs.getVariable(inst.getId(), "cursoCancelado")
+    if (cancelado == true) continue
+    ocupadas++
+}
+if (ocupadas >= 2) {
     throw new RuntimeException("No hay aulas físicas disponibles en la institución (2/2 ocupadas).")
 }
-execution.setVariable("aulaOcupada", true)
-if (!execution.getVariable("aulaAsignada")) {
-    execution.setVariable("aulaAsignada", "Aula Física " + (ocupadas + 1))
+rs.setVariable(pid, "aulaOcupada", true)
+if (!rs.getVariable(pid, "aulaAsignada")) {
+    rs.setVariable(pid, "aulaAsignada", "Aula Física " + (ocupadas + 1))
 }]]></flowable:string>
             </flowable:field>
           </flowable:executionListener>
@@ -269,7 +279,16 @@ if (!execution.getVariable("aulaAsignada")) {
       </serviceTask>
       <serviceTask id="Activity_16zz91p" name="Liberar Aula" isForCompensation="true" flowable:expression="${true}">
         <extensionElements>
-          <flowable:executionListener event="start" expression="${execution.setVariable('aulaOcupada', false)}"></flowable:executionListener>
+          <flowable:executionListener event="start" class="org.flowable.engine.impl.bpmn.listener.ScriptExecutionListener">
+            <flowable:field name="language">
+              <flowable:string><![CDATA[groovy]]></flowable:string>
+            </flowable:field>
+            <flowable:field name="script">
+              <flowable:string><![CDATA[def rs = org.flowable.engine.impl.context.Context.getProcessEngineConfiguration().getRuntimeService()
+rs.setVariable(execution.getProcessInstanceId(), "aulaOcupada", false)
+rs.setVariable(execution.getProcessInstanceId(), "aulaLiberada", true)]]></flowable:string>
+            </flowable:field>
+          </flowable:executionListener>
         </extensionElements>
       </serviceTask>
       <scriptTask id="Activity_02hrooc" name="Liberar Aula Virtual" isForCompensation="true" scriptFormat="groovy" flowable:autoStoreVariables="false">
